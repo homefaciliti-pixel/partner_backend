@@ -1,0 +1,159 @@
+import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../auth/auth_viewmodel.dart';
+
+class HomeViewModel extends ChangeNotifier {
+
+  // ================= BOOKINGS DATA (MAIN SOURCE ) =================
+
+  //  ye main data hai (Dashboard + Booking dono yahi use karenge)
+  List<Map<String, String>> bookings = [];
+
+  // ================= DASHBOARD (AUTO CALCULATED) =================
+
+  //  ye sab bookings list se auto calculate hoga
+
+  int get totalBooking => bookings.length;
+
+  int get upcomingBooking =>
+      bookings.where((e) => e["status"] == "upcoming").length;
+
+  int get completedBooking =>
+      bookings.where((e) => e["status"] == "completed").length;
+
+  int get cancelBooking =>
+      bookings.where((e) => e["status"] == "cancel").length;
+
+  // ================= LOGOUT =================
+
+  bool isLogout = false;
+
+  void logout() {
+    isLogout = true;
+    notifyListeners();
+  }
+
+  void resetLogout() {
+    isLogout = false;
+  }
+
+  // ================= BANNER =================
+
+  List<String> banners = [
+    "https://picsum.photos/400/200",
+    "https://picsum.photos/401/200",
+    "https://picsum.photos/402/200",
+  ];
+
+  int currentBannerIndex = 0;
+
+  final PageController pageController = PageController();
+
+  //  swipe ke liye
+  void changeBanner(int index) {
+    currentBannerIndex = index;
+    notifyListeners();
+  }
+
+  //  auto slide
+  void startAutoSlide() {
+    Future.delayed(const Duration(seconds: 3), () {
+
+      int nextPage = currentBannerIndex + 1;
+
+      if (nextPage >= banners.length) {
+        nextPage = 0;
+      }
+
+      pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+
+      startAutoSlide(); //  loop
+    });
+  }
+
+  // ================= BOTTOM NAV =================
+
+  int currentIndex = 0;
+
+  void changeTab(int index) {
+    currentIndex = index;
+    notifyListeners();
+  }
+
+
+  String selectedFilter = "upcoming";
+
+
+  void changeFilter(String value){
+    selectedFilter =value;
+    notifyListeners();
+
+  }
+
+  List<Map<String, String>> get filteredBookings {
+    return bookings
+        .where((e) => e["status"] == selectedFilter)
+        .toList();
+  }
+
+
+           /// Earning screen
+
+
+//  total wallet
+  int totalEarning = 0;
+
+//  cash earning
+  int todayEarning = 0;
+
+//  online earning
+  int monthlyEarning = 0;
+
+  Future<void> fetchBookings(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse("${AuthViewModel.baseUrl}/bookings"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        bookings = data.map((item) => {
+          "id": item["id"].toString(),
+          "status": item["status"].toString(),
+          "service": item["service"].toString(),
+          "date": item["date"].toString(),
+          "time": item["time"].toString(),
+        }).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error fetching bookings: $e");
+    }
+  }
+
+  Future<void> fetchEarnings(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse("${AuthViewModel.baseUrl}/earnings"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        totalEarning = data["totalEarning"] ?? 0;
+        todayEarning = data["todayEarning"] ?? 0;
+        monthlyEarning = data["monthlyEarning"] ?? 0;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error fetching earnings: $e");
+    }
+  }
+
+}
