@@ -15,6 +15,60 @@ class AuthViewModel extends ChangeNotifier {
   static const String imageBaseUrl = "http://10.0.2.2:5000";
   String? token;
 
+  AuthViewModel() {
+    fetchMetadata();
+  }
+
+  // Fetch dynamic location and category dropdown options from the database
+  Future<void> fetchMetadata() async {
+    try {
+      final responseLocations = await http.get(Uri.parse('$baseUrl/metadata/locations'));
+      if (responseLocations.statusCode == 200) {
+        final Map<String, dynamic> rawLocs = jsonDecode(responseLocations.body);
+        Map<String, Map<String, List<String>>> parsedLocs = {};
+        rawLocs.forEach((state, citiesMap) {
+          Map<String, List<String>> parsedCities = {};
+          (citiesMap as Map<String, dynamic>).forEach((city, localitiesList) {
+            parsedCities[city] = List<String>.from(localitiesList);
+          });
+          parsedLocs[state] = parsedCities;
+        });
+        if (parsedLocs.isNotEmpty) {
+          locationData = parsedLocs;
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching dynamic locations: $e");
+    }
+
+    try {
+      final responseCategories = await http.get(Uri.parse('$baseUrl/metadata/categories'));
+      if (responseCategories.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(responseCategories.body);
+        final List<dynamic> mainCats = data['categories'] ?? [];
+        if (mainCats.isNotEmpty) {
+          categories = List<String>.from(mainCats);
+        }
+        
+        final Map<String, dynamic> rawCatData = data['categoryData'] ?? {};
+        Map<String, Map<String, List<String>>> parsedCatData = {};
+        rawCatData.forEach((mainCat, subsMap) {
+          Map<String, List<String>> parsedSubs = {};
+          (subsMap as Map<String, dynamic>).forEach((subCat, servicesList) {
+            parsedSubs[subCat] = List<String>.from(servicesList);
+          });
+          parsedCatData[mainCat] = parsedSubs;
+        });
+        if (parsedCatData.isNotEmpty) {
+          categoryData = parsedCatData;
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching dynamic categories: $e");
+    }
+    notifyListeners();
+  }
+
   // ================= LOGIN =================
 
   Future<void> login(

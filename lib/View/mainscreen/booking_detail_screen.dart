@@ -1,24 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:provider/provider.dart';
+import '../../ViewModel/home/home_viewmodel.dart';
+import '../../ViewModel/auth/auth_viewmodel.dart';
 
 /// aapne ko bookingdetilviewmodel bnna h jab aapn api call krege jab banni h
 
-
 class BookingDetailScreen extends StatelessWidget {
-
 
 // 🔥 STATUS BASED BUTTON (PRO LEVEL)
   Widget buildActionButton(BuildContext context) {
-
     final status = booking["status"];
+    final homeVm = Provider.of<HomeViewModel>(context, listen: false);
+    final authVm = Provider.of<AuthViewModel>(context, listen: false);
+    final token = authVm.token;
+    final bookingId = booking["id"] ?? "";
 
     // 🔹 UPCOMING → Start Work
     if (status == "upcoming") {
       return ElevatedButton(
-        onPressed: () {
-          booking["status"] = "in_progress"; // 🔥 status change
-          (context as Element).markNeedsBuild(); // 🔥 UI refresh
+        onPressed: () async {
+          if (token != null && bookingId.isNotEmpty) {
+            // Show loading indicator
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => const Center(child: CircularProgressIndicator()),
+            );
+            
+            final success = await homeVm.startBooking(bookingId, token);
+            Navigator.pop(context); // Close loading dialog
+            
+            if (success) {
+              booking["status"] = "in_progress";
+              (context as Element).markNeedsBuild();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Work started successfully!"))
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Failed to start work. Check connection."))
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Authentication error. Please login again."))
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.orange,
@@ -32,9 +60,34 @@ class BookingDetailScreen extends StatelessWidget {
     // 🔹 IN PROGRESS → Complete Work
     else if (status == "in_progress") {
       return ElevatedButton(
-        onPressed: () {
-          booking["status"] = "completed"; // 🔥 next status
-          (context as Element).markNeedsBuild();
+        onPressed: () async {
+          if (token != null && bookingId.isNotEmpty) {
+            // Show loading indicator
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => const Center(child: CircularProgressIndicator()),
+            );
+            
+            final success = await homeVm.completeBooking(bookingId, token);
+            Navigator.pop(context); // Close loading dialog
+            
+            if (success) {
+              booking["status"] = "completed";
+              (context as Element).markNeedsBuild();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Work completed and earnings updated!"))
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Failed to complete work. Check connection."))
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Authentication error. Please login again."))
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,

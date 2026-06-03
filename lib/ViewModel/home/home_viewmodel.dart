@@ -156,4 +156,49 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  // Start work on an assigned order
+  Future<bool> startBooking(String bookingId, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${AuthViewModel.baseUrl}/bookings/$bookingId/start"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        final idx = bookings.indexWhere((element) => element["id"] == bookingId);
+        if (idx != -1) {
+          bookings[idx]["status"] = "in_progress";
+          notifyListeners();
+        }
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Error starting booking: $e");
+    }
+    return false;
+  }
+
+  // Complete work on a booking and trigger automated calculations on backend
+  Future<bool> completeBooking(String bookingId, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${AuthViewModel.baseUrl}/bookings/$bookingId/complete"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        final idx = bookings.indexWhere((element) => element["id"] == bookingId);
+        if (idx != -1) {
+          bookings[idx]["status"] = "completed";
+          notifyListeners();
+        }
+        await fetchEarnings(token);
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Error completing booking: $e");
+    }
+    return false;
+  }
+
 }
