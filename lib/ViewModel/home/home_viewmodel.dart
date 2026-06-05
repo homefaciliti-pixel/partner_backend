@@ -19,6 +19,9 @@ class HomeViewModel extends ChangeNotifier {
   int get upcomingBooking =>
       bookings.where((e) => e["status"] == "upcoming").length;
 
+  int get inProgressBooking =>
+      bookings.where((e) => e["status"] == "in_progress").length;
+
   int get completedBooking =>
       bookings.where((e) => e["status"] == "completed").length;
 

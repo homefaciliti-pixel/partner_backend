@@ -23,13 +23,14 @@ class BookingScreen extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          //  FILTER BUTTONS (Upcoming / Completed / Cancel)
+          //  FILTER BUTTONS (Upcoming / In Progress / Completed / Cancel)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 buildFilter(vm, "upcoming"),
+                buildFilter(vm, "in_progress"),
                 buildFilter(vm, "completed"),
                 buildFilter(vm, "cancel"),
               ],
@@ -143,6 +144,7 @@ class BookingScreen extends StatelessWidget {
     int count = 0;
 
     if (type == "upcoming") count = vm.upcomingBooking;
+    if (type == "in_progress") count = vm.inProgressBooking;
     if (type == "completed") count = vm.completedBooking;
     if (type == "cancel") count = vm.cancelBooking;
 
@@ -194,6 +196,7 @@ class BookingScreen extends StatelessWidget {
 
   Color getColor(String status) {
     if (status == "upcoming") return Colors.green;
+    if (status == "in_progress") return Colors.orange;
     if (status == "completed") return Colors.blue;
     if (status == "cancel") return Colors.red;
     return Colors.grey;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hf_partner/ViewModel/auth/auth_viewmodel.dart';
 import 'package:hf_partner/ViewModel/home/home_viewmodel.dart';
+import 'package:hf_partner/View/mainscreen/booking_detail_screen.dart';
 import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -137,10 +138,130 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
+
+            // DEDICATED ACCEPTED BOOKINGS SECTION
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                "Accepted Bookings",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0B5FA5),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            buildAcceptedBookingsList(homeVm, context),
+
+            const SizedBox(height: 30),
           ],
         ),
       ),
+    );
+  }
+
+  // ================= ACCEPTED BOOKINGS LIST =================
+
+  Widget buildAcceptedBookingsList(HomeViewModel vm, BuildContext context) {
+    // Filter bookings that are accepted (upcoming or in_progress)
+    final accepted = vm.bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress").toList();
+
+    if (accepted.isEmpty) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(16),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: const Center(
+          child: Text(
+            "No active bookings. Tap on Bookings to check your schedule.",
+            style: TextStyle(color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: accepted.length,
+      itemBuilder: (context, index) {
+        final booking = accepted[index];
+        final status = booking["status"]!;
+        final service = booking["service"]!;
+        final date = booking["date"]!;
+        final time = booking["time"]!;
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BookingDetailScreen(booking: booking),
+              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, 2))
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.between,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        service,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "$date • $time",
+                        style: const TextStyle(color: Colors.grey, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: (status == "in_progress" ? Colors.orange : Colors.green).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    status == "in_progress" ? "IN PROGRESS" : "UPCOMING",
+                    style: TextStyle(
+                      color: status == "in_progress" ? Colors.orange : Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
