@@ -8,7 +8,78 @@ class HomeViewModel extends ChangeNotifier {
   // ================= BOOKINGS DATA (MAIN SOURCE ) =================
 
   //  ye main data hai (Dashboard + Booking dono yahi use karenge)
-  List<Map<String, String>> bookings = [];
+  List<Map<String, String>> bookings = [
+    {
+      "id": "101",
+      "status": "pending",
+      "service": "AC Service & Repairing",
+      "date": "06-06-2026",
+      "time": "10:00 AM - 12:00 PM",
+      "serviceAmount": "499",
+      "serviceRequestNumber": "REQ-2026-101",
+      "address": "H.No 12, Block B, Connaught Place",
+      "city": "Delhi",
+      "locality": "Connaught Place",
+      "customerName": "Rahul Sharma",
+      "customerPhone": "9876543210"
+    },
+    {
+      "id": "102",
+      "status": "upcoming",
+      "service": "Deep Sofa Cleaning",
+      "date": "06-06-2026",
+      "time": "01:00 PM - 03:00 PM",
+      "serviceAmount": "799",
+      "serviceRequestNumber": "REQ-2026-102",
+      "address": "Flat 402, Sector 15, Vasundhara",
+      "city": "Ghaziabad",
+      "locality": "Vasundhara",
+      "customerName": "Aarav Gupta",
+      "customerPhone": "9112233445"
+    },
+    {
+      "id": "103",
+      "status": "in_progress",
+      "service": "Kitchen Deep Cleaning",
+      "date": "05-06-2026",
+      "time": "09:00 AM - 01:00 PM",
+      "serviceAmount": "1499",
+      "serviceRequestNumber": "REQ-2026-103",
+      "address": "Villa 18, Golf Course Road",
+      "city": "Gurugram",
+      "locality": "Sector 42",
+      "customerName": "Priyanka Sen",
+      "customerPhone": "9223344556"
+    },
+    {
+      "id": "104",
+      "status": "completed",
+      "service": "Fan Repairing & Installation",
+      "date": "04-06-2026",
+      "time": "04:00 PM - 05:00 PM",
+      "serviceAmount": "199",
+      "serviceRequestNumber": "REQ-2026-104",
+      "address": "H.No 45, Gali 2, Raja Park",
+      "city": "Jaipur",
+      "locality": "Raja Park",
+      "customerName": "Mahendra Singh",
+      "customerPhone": "9334455667"
+    },
+    {
+      "id": "105",
+      "status": "cancel",
+      "service": "Electric Wire & Switch Fitting",
+      "date": "03-06-2026",
+      "time": "03:00 PM - 04:00 PM",
+      "serviceAmount": "299",
+      "serviceRequestNumber": "REQ-2026-105",
+      "address": "B-12, Malviya Industrial Area",
+      "city": "Jaipur",
+      "locality": "Malviya Nagar",
+      "customerName": "Vikas Verma",
+      "customerPhone": "9445566778"
+    }
+  ];
 
   // ================= DASHBOARD (AUTO CALCULATED) =================
 
@@ -134,21 +205,23 @@ class HomeViewModel extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        bookings = data.map((item) => {
-          "id": item["id"].toString(),
-          "status": item["status"].toString(),
-          "service": item["service"].toString(),
-          "date": item["date"].toString(),
-          "time": item["time"].toString(),
-          "serviceAmount": (item["serviceAmount"] ?? "").toString(),
-          "serviceRequestNumber": (item["serviceRequestNumber"] ?? "").toString(),
-          "address": (item["address"] ?? "").toString(),
-          "city": (item["city"] ?? "").toString(),
-          "locality": (item["locality"] ?? "").toString(),
-          "customerName": (item["customerName"] ?? "").toString(),
-          "customerPhone": (item["customerPhone"] ?? "").toString(),
-        }).toList();
-        notifyListeners();
+        if (data.isNotEmpty) {
+          bookings = data.map((item) => {
+            "id": item["id"].toString(),
+            "status": item["status"].toString(),
+            "service": item["service"].toString(),
+            "date": item["date"].toString(),
+            "time": item["time"].toString(),
+            "serviceAmount": (item["serviceAmount"] ?? "").toString(),
+            "serviceRequestNumber": (item["serviceRequestNumber"] ?? "").toString(),
+            "address": (item["address"] ?? "").toString(),
+            "city": (item["city"] ?? "").toString(),
+            "locality": (item["locality"] ?? "").toString(),
+            "customerName": (item["customerName"] ?? "").toString(),
+            "customerPhone": (item["customerPhone"] ?? "").toString(),
+          }).toList();
+          notifyListeners();
+        }
       }
     } catch (e) {
       debugPrint("Error fetching bookings: $e");
