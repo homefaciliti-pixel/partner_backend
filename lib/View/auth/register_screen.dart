@@ -301,7 +301,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       vm.selectedLocality = vm.user!.locality;
 
       vm.selectedCategory = vm.user!.category;
-      vm.selectedSubCategory = vm.user!.subCategory;
+      vm.selectedSubCategory = vm.user!.subCategory.isNotEmpty ? vm.user!.subCategory : 'General';
 
       // ✅ FIX
       vm.selectedServices =
@@ -417,9 +417,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
 
             buildCategoryDropdown(vm),
-
-            if (vm.selectedCategory != null)
-              buildSubCategoryDropdown(vm),
 
             const Text("Vehicle"),
             Row(

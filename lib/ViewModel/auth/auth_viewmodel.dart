@@ -419,7 +419,7 @@ class AuthViewModel extends ChangeNotifier {
 
   void selectCategory(String value) {
     selectedCategory = value;
-    selectedSubCategory = null;
+    selectedSubCategory = 'General';
     selectedServices.clear();
     notifyListeners();
   }

@@ -72,7 +72,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       vm.selectedLocality = user.locality;
 
       vm.selectedCategory = user.category;
-      vm.selectedSubCategory = user.subCategory;
+      vm.selectedSubCategory = user.subCategory.isNotEmpty ? user.subCategory : 'General';
       vm.selectedServices = user.services.split(',');
 
       //  LOAD IMAGES
@@ -295,37 +295,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),
               onChanged: (val) {
-                vm.selectedCategory = val;
-                vm.notifyListeners();
-              },
-            ),
-            SizedBox(height: 15,),
-
-            DropdownButtonFormField<String>(
-              value: vm.selectedSubCategory,
-              hint: Text("SubCategory"),
-              decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16,vertical: 12),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!,width: 1)
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.blue,width: 2)
-                  )
-              ),
-              items: vm.selectedCategory != null
-                  ? (vm.categoryData[vm.selectedCategory!]!.keys
-                  .map<DropdownMenuItem<String>>((e) =>
-                  DropdownMenuItem(value: e, child: Text(e)))
-                  .toList())
-                  : [],
-              onChanged: (val) {
-                vm.selectedSubCategory = val;
-                vm.notifyListeners();
+                vm.selectCategory(val!);
               },
             ),
 
