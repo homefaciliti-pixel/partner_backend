@@ -16,6 +16,47 @@ class BookingDetailScreen extends StatelessWidget {
     final token = authVm.token;
     final bookingId = booking["id"] ?? "";
 
+    // 🔹 PENDING → Accept Booking
+    if (status == "pending") {
+      return ElevatedButton(
+        onPressed: () async {
+          if (token != null && bookingId.isNotEmpty) {
+            // Show loading indicator
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => const Center(child: CircularProgressIndicator()),
+            );
+            
+            final success = await homeVm.acceptBooking(bookingId, token);
+            Navigator.pop(context); // Close loading dialog
+            
+            if (success) {
+              booking["status"] = "upcoming";
+              (context as Element).markNeedsBuild();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Order accepted successfully!"))
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Failed to accept order. Check connection."))
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Authentication error. Please login again."))
+            );
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.purple,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+        child: const Text("Accept Booking",
+            style: TextStyle(color: Colors.white)),
+      );
+    }
+
     // 🔹 UPCOMING → Start Work
     if (status == "upcoming") {
       return ElevatedButton(
@@ -198,6 +239,10 @@ class BookingDetailScreen extends StatelessWidget {
                   Text("📅 Date: $date"),
                   const SizedBox(height: 8),
                   Text("⏰ Time: $time"),
+                  const SizedBox(height: 8),
+                  Text("💵 Amount: ₹${booking["serviceAmount"] ?? 'N/A'}"),
+                  const SizedBox(height: 8),
+                  Text("🔢 Request No: ${booking["serviceRequestNumber"] ?? 'N/A'}"),
                 ],
               ),
             ),
@@ -209,10 +254,10 @@ class BookingDetailScreen extends StatelessWidget {
               title: "Customer Info",
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("👤 Rahul Sharma"),
-                  SizedBox(height: 8),
-                  Text("📞 9876543210"),
+                children: [
+                  Text("👤 ${booking["customerName"] ?? 'Rahul Sharma'}"),
+                  const SizedBox(height: 8),
+                  Text("📞 ${booking["customerPhone"] ?? '9876543210'}"),
                 ],
               ),
             ),
@@ -222,7 +267,7 @@ class BookingDetailScreen extends StatelessWidget {
             // ================= LOCATION =================
             buildCard(
               title: "Location",
-              child: const Text("📍 Jodhpur, Rajasthan"),
+              child: Text("📍 ${booking["address"] ?? 'Jodhpur, Rajasthan'}, ${booking["locality"] ?? ''}, ${booking["city"] ?? ''}"),
             ),
 
             const SizedBox(height: 30),
@@ -298,6 +343,7 @@ class BookingDetailScreen extends StatelessWidget {
   // 🔥 STATUS COLOR
   Color getColor(String status) {
     if (status == "upcoming") return Colors.green;
+    if (status == "pending") return Colors.purple;
     if (status == "in_progress") return Colors.orange;
     if (status == "completed") return Colors.blue;
     if (status == "cancel") return Colors.red;

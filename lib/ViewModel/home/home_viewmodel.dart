@@ -17,13 +17,13 @@ class HomeViewModel extends ChangeNotifier {
   int get totalBooking => bookings.length;
 
   int get upcomingBooking =>
-      bookings.where((e) => e["status"] == "upcoming").length;
+      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "pending").length;
 
   int get inProgressBooking =>
       bookings.where((e) => e["status"] == "in_progress").length;
 
   int get acceptedBooking =>
-      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress").length;
+      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress" || e["status"] == "pending").length;
 
   int get completedBooking =>
       bookings.where((e) => e["status"] == "completed").length;
@@ -102,6 +102,11 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   List<Map<String, String>> get filteredBookings {
+    if (selectedFilter == "upcoming") {
+      return bookings
+          .where((e) => e["status"] == "upcoming" || e["status"] == "pending")
+          .toList();
+    }
     return bookings
         .where((e) => e["status"] == selectedFilter)
         .toList();
@@ -135,12 +140,41 @@ class HomeViewModel extends ChangeNotifier {
           "service": item["service"].toString(),
           "date": item["date"].toString(),
           "time": item["time"].toString(),
+          "serviceAmount": (item["serviceAmount"] ?? "").toString(),
+          "serviceRequestNumber": (item["serviceRequestNumber"] ?? "").toString(),
+          "address": (item["address"] ?? "").toString(),
+          "city": (item["city"] ?? "").toString(),
+          "locality": (item["locality"] ?? "").toString(),
+          "customerName": (item["customerName"] ?? "").toString(),
+          "customerPhone": (item["customerPhone"] ?? "").toString(),
         }).toList();
         notifyListeners();
       }
     } catch (e) {
       debugPrint("Error fetching bookings: $e");
     }
+  }
+
+  // Accept a pending unassigned booking and set status to upcoming (Assigned)
+  Future<bool> acceptBooking(String bookingId, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${AuthViewModel.baseUrl}/bookings/$bookingId/accept"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        final idx = bookings.indexWhere((element) => element["id"] == bookingId);
+        if (idx != -1) {
+          bookings[idx]["status"] = "upcoming";
+          notifyListeners();
+        }
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Error accepting booking: $e");
+    }
+    return false;
   }
 
   Future<void> fetchEarnings(String token) async {

@@ -113,7 +113,7 @@ class BookingScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              status.toUpperCase(),
+                              status == "pending" ? "PENDING / AVAILABLE" : status.toUpperCase(),
                               style: TextStyle(
                                 color: getColor(status),
                                 fontWeight: FontWeight.bold,
@@ -196,6 +196,7 @@ class BookingScreen extends StatelessWidget {
 
   Color getColor(String status) {
     if (status == "upcoming") return Colors.green;
+    if (status == "pending") return Colors.purple;
     if (status == "in_progress") return Colors.orange;
     if (status == "completed") return Colors.blue;
     if (status == "cancel") return Colors.red;
