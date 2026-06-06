@@ -102,6 +102,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
 
+                  //  ACCEPTED
+                  buildCard(
+                    homeVm.acceptedBooking.toString(),
+                    "Accepted Booking",
+                    Colors.purple,
+                    onTap: () {
+                      homeVm.changeTab(1);
+                      homeVm.changeFilter("upcoming");
+                    },
+                  ),
+
                   //  UPCOMING
                   buildCard(
                     homeVm.upcomingBooking.toString(),
@@ -110,6 +121,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     onTap: () {
                       homeVm.changeTab(1);
                       homeVm.changeFilter("upcoming");
+                    },
+                  ),
+
+                  //  IN PROGRESS
+                  buildCard(
+                    homeVm.inProgressBooking.toString(),
+                    "In Progress",
+                    Colors.orange,
+                    onTap: () {
+                      homeVm.changeTab(1);
+                      homeVm.changeFilter("in_progress");
                     },
                   ),
 
