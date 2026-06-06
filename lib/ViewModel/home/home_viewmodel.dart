@@ -18,10 +18,10 @@ class HomeViewModel extends ChangeNotifier {
       bookings.where((e) => e["status"] == "pending").length;
 
   int get inProgressBooking =>
-      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress").length;
+      bookings.where((e) => e["status"] == "accepted" || e["status"] == "in_progress").length;
 
   int get acceptedBooking =>
-      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress").length;
+      bookings.where((e) => e["status"] == "accepted" || e["status"] == "in_progress").length;
 
   int get completedBooking =>
       bookings.where((e) => e["status"] == "completed").length;
@@ -107,7 +107,7 @@ class HomeViewModel extends ChangeNotifier {
     }
     if (selectedFilter == "in_progress") {
       return bookings
-          .where((e) => e["status"] == "upcoming" || e["status"] == "in_progress")
+          .where((e) => e["status"] == "accepted" || e["status"] == "in_progress")
           .toList();
     }
     return bookings
@@ -169,7 +169,7 @@ class HomeViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final idx = bookings.indexWhere((element) => element["id"] == bookingId);
         if (idx != -1) {
-          bookings[idx]["status"] = "upcoming";
+          bookings[idx]["status"] = "accepted";
           notifyListeners();
         }
         return true;

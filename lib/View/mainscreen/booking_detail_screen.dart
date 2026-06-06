@@ -32,7 +32,7 @@ class BookingDetailScreen extends StatelessWidget {
             Navigator.pop(context); // Close loading dialog
             
             if (success) {
-              booking["status"] = "upcoming";
+              booking["status"] = "accepted";
               (context as Element).markNeedsBuild();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Order accepted successfully!"))
@@ -57,8 +57,8 @@ class BookingDetailScreen extends StatelessWidget {
       );
     }
 
-    // 🔹 UPCOMING → Start Work
-    if (status == "upcoming") {
+    // 🔹 ACCEPTED → Start Work
+    if (status == "accepted" || status == "upcoming") {
       return ElevatedButton(
         onPressed: () async {
           if (token != null && bookingId.isNotEmpty) {
@@ -342,7 +342,7 @@ class BookingDetailScreen extends StatelessWidget {
 
   // 🔥 STATUS COLOR
   Color getColor(String status) {
-    if (status == "upcoming") return Colors.green;
+    if (status == "accepted" || status == "upcoming") return Colors.green;
     if (status == "pending") return Colors.purple;
     if (status == "in_progress") return Colors.orange;
     if (status == "completed") return Colors.blue;

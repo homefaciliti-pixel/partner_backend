@@ -195,7 +195,7 @@ class BookingScreen extends StatelessWidget {
   // ================= STATUS COLOR =================
 
   Color getColor(String status) {
-    if (status == "upcoming") return Colors.green;
+    if (status == "accepted" || status == "upcoming") return Colors.green;
     if (status == "pending") return Colors.purple;
     if (status == "in_progress") return Colors.orange;
     if (status == "completed") return Colors.blue;

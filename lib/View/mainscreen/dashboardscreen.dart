@@ -190,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget buildAcceptedBookingsList(HomeViewModel vm, BuildContext context) {
     // Filter bookings that are accepted (upcoming or in_progress)
-    final accepted = vm.bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress").toList();
+    final accepted = vm.bookings.where((e) => e["status"] == "accepted" || e["status"] == "upcoming" || e["status"] == "in_progress").toList();
 
     if (accepted.isEmpty) {
       return Container(
