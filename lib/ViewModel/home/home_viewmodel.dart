@@ -5,6 +5,9 @@ import '../auth/auth_viewmodel.dart';
 
 class HomeViewModel extends ChangeNotifier {
 
+  bool isPaid = false;
+  bool isApproved = false;
+
   //  ye main data hai (Dashboard + Booking dono yahi use karenge)
   List<Map<String, String>> bookings = [];
 
@@ -178,6 +181,23 @@ class HomeViewModel extends ChangeNotifier {
       debugPrint("Error accepting booking: $e");
     }
     return false;
+  }
+
+  Future<void> fetchDashboardData(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse("${AuthViewModel.baseUrl}/partner/dashboard"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        isPaid = data["isPaid"] == true || data["isPaid"] == 1;
+        isApproved = data["isApproved"] == true || data["isApproved"] == 1;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error fetching dashboard status: $e");
+    }
   }
 
   Future<void> fetchEarnings(String token) async {

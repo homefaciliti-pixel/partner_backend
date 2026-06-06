@@ -63,126 +63,127 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
 
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            const SizedBox(height: 16),
-
-            //  BANNER
-            buildBanner(homeVm),
-
-            const SizedBox(height: 10),
-
-            //  INDICATOR
-            buildIndicator(homeVm),
-
-            const SizedBox(height: 30),
-
-            //  DASHBOARD CARDS (DYNAMIC + CLICKABLE)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 14,
-                childAspectRatio: 0.9,
+      body: homeVm.isApproved
+          ? SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 16),
 
-                  //  TOTAL
-                  buildCard(
-                    homeVm.totalBooking.toString(),
-                    "Total Booking",
-                    const Color(0xFF0B5FA5),
-                    onTap: () {
-                      homeVm.changeTab(1); // booking screen
-                    },
+                  //  BANNER
+                  buildBanner(homeVm),
+
+                  const SizedBox(height: 10),
+
+                  //  INDICATOR
+                  buildIndicator(homeVm),
+
+                  const SizedBox(height: 30),
+
+                  //  DASHBOARD CARDS (DYNAMIC + CLICKABLE)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 14,
+                      childAspectRatio: 0.9,
+                      children: [
+
+                        //  TOTAL
+                        buildCard(
+                          homeVm.totalBooking.toString(),
+                          "Total Booking",
+                          const Color(0xFF0B5FA5),
+                          onTap: () {
+                            homeVm.changeTab(1); // booking screen
+                          },
+                        ),
+
+                        //  ACCEPTED
+                        buildCard(
+                          homeVm.acceptedBooking.toString(),
+                          "Accepted Booking",
+                          Colors.purple,
+                          onTap: () {
+                            homeVm.changeTab(1);
+                            homeVm.changeFilter("upcoming");
+                          },
+                        ),
+
+                        //  UPCOMING
+                        buildCard(
+                          homeVm.upcomingBooking.toString(),
+                          "Upcoming Booking",
+                          Colors.green,
+                          onTap: () {
+                            homeVm.changeTab(1);
+                            homeVm.changeFilter("upcoming");
+                          },
+                        ),
+
+                        //  IN PROGRESS
+                        buildCard(
+                          homeVm.inProgressBooking.toString(),
+                          "In Progress",
+                          Colors.orange,
+                          onTap: () {
+                            homeVm.changeTab(1);
+                            homeVm.changeFilter("in_progress");
+                          },
+                        ),
+
+                        //  COMPLETED
+                        buildCard(
+                          homeVm.completedBooking.toString(),
+                          "Completed Booking",
+                          Colors.blue,
+                          onTap: () {
+                            homeVm.changeTab(1);
+                            homeVm.changeFilter("completed");
+                          },
+                        ),
+
+                        //  CANCEL
+                        buildCard(
+                          homeVm.cancelBooking.toString(),
+                          "Cancel Booking",
+                          Colors.black,
+                          onTap: () {
+                            homeVm.changeTab(1);
+                            homeVm.changeFilter("cancel");
+                          },
+                        ),
+                      ],
+                    ),
                   ),
 
-                  //  ACCEPTED
-                  buildCard(
-                    homeVm.acceptedBooking.toString(),
-                    "Accepted Booking",
-                    Colors.purple,
-                    onTap: () {
-                      homeVm.changeTab(1);
-                      homeVm.changeFilter("upcoming");
-                    },
+                  const SizedBox(height: 24),
+
+                  // DEDICATED ACCEPTED BOOKINGS SECTION
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      "Accepted Bookings",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0B5FA5),
+                      ),
+                    ),
                   ),
 
-                  //  UPCOMING
-                  buildCard(
-                    homeVm.upcomingBooking.toString(),
-                    "Upcoming Booking",
-                    Colors.green,
-                    onTap: () {
-                      homeVm.changeTab(1);
-                      homeVm.changeFilter("upcoming");
-                    },
-                  ),
+                  const SizedBox(height: 12),
 
-                  //  IN PROGRESS
-                  buildCard(
-                    homeVm.inProgressBooking.toString(),
-                    "In Progress",
-                    Colors.orange,
-                    onTap: () {
-                      homeVm.changeTab(1);
-                      homeVm.changeFilter("in_progress");
-                    },
-                  ),
+                  buildAcceptedBookingsList(homeVm, context),
 
-                  //  COMPLETED
-                  buildCard(
-                    homeVm.completedBooking.toString(),
-                    "Completed Booking",
-                    Colors.blue,
-                    onTap: () {
-                      homeVm.changeTab(1);
-                      homeVm.changeFilter("completed");
-                    },
-                  ),
-
-                  //  CANCEL
-                  buildCard(
-                    homeVm.cancelBooking.toString(),
-                    "Cancel Booking",
-                    Colors.black,
-                    onTap: () {
-                      homeVm.changeTab(1);
-                      homeVm.changeFilter("cancel");
-                    },
-                  ),
+                  const SizedBox(height: 30),
                 ],
               ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // DEDICATED ACCEPTED BOOKINGS SECTION
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                "Accepted Bookings",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0B5FA5),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            buildAcceptedBookingsList(homeVm, context),
-
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
+            )
+          : buildPendingApprovalView(context, homeVm, authVm),
     );
   }
 
@@ -387,6 +388,191 @@ class _DashboardScreenState extends State<DashboardScreen> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildPendingApprovalView(BuildContext context, HomeViewModel homeVm, AuthViewModel authVm) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.grey.shade50,
+            Colors.grey.shade100,
+          ],
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Icon with glowing effect
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withOpacity(0.2),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.lock_clock_outlined,
+                  size: 80,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Welcome Text
+              Text(
+                "Welcome, ${authVm.user?.name ?? 'Partner'}!",
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              
+              // Status Headline
+              const Text(
+                "Verification Under Review",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              
+              // Description
+              Text(
+                "Our admin team is currently reviewing your uploaded KYC documents and bank details. You will get full access to the dashboard and bookings calendar once your account is verified.",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 36),
+              
+              // Progress checklist card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Verification Progress",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    buildChecklistItem("Personal Profile Submitted", true),
+                    buildChecklistItem("KYC Documents Uploaded (Aadhar, PAN)", true),
+                    buildChecklistItem("Bank Details Linked", true),
+                    buildChecklistItem("Admin Approval Status", false, isLast: true),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 36),
+              
+              // Action buttons (Refresh & Support)
+              ElevatedButton.icon(
+                onPressed: () async {
+                  // Show loading indicator toast
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Checking verification status..."),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                  if (authVm.token != null) {
+                    await homeVm.fetchDashboardData(authVm.token!);
+                    if (homeVm.isApproved) {
+                      await homeVm.fetchBookings(authVm.token!);
+                      await homeVm.fetchEarnings(authVm.token!);
+                    }
+                  }
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text(
+                  "Check Status",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0B5FA5),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildChecklistItem(String title, bool isCompleted, {bool isLast = false}) {
+    return Container(
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: isCompleted ? Colors.green.shade50 : Colors.orange.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isCompleted ? Icons.check : Icons.hourglass_empty,
+              size: 16,
+              color: isCompleted ? Colors.green : Colors.orange,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontWeight: isCompleted ? FontWeight.w500 : FontWeight.bold,
+                color: isCompleted ? Colors.grey.shade600 : Colors.orange.shade700,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

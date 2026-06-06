@@ -24,6 +24,7 @@ class _MainScreenState extends State<MainScreen> {
       final authVm = Provider.of<AuthViewModel>(context, listen: false);
       final homeVm = Provider.of<HomeViewModel>(context, listen: false);
       if (authVm.token != null) {
+        homeVm.fetchDashboardData(authVm.token!);
         homeVm.fetchBookings(authVm.token!);
         homeVm.fetchEarnings(authVm.token!);
       }
