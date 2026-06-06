@@ -15,13 +15,13 @@ class HomeViewModel extends ChangeNotifier {
   int get totalBooking => bookings.length;
 
   int get upcomingBooking =>
-      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "pending").length;
+      bookings.where((e) => e["status"] == "pending").length;
 
   int get inProgressBooking =>
-      bookings.where((e) => e["status"] == "in_progress").length;
+      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress").length;
 
   int get acceptedBooking =>
-      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress" || e["status"] == "pending").length;
+      bookings.where((e) => e["status"] == "upcoming" || e["status"] == "in_progress").length;
 
   int get completedBooking =>
       bookings.where((e) => e["status"] == "completed").length;
@@ -102,7 +102,12 @@ class HomeViewModel extends ChangeNotifier {
   List<Map<String, String>> get filteredBookings {
     if (selectedFilter == "upcoming") {
       return bookings
-          .where((e) => e["status"] == "upcoming" || e["status"] == "pending")
+          .where((e) => e["status"] == "pending")
+          .toList();
+    }
+    if (selectedFilter == "in_progress") {
+      return bookings
+          .where((e) => e["status"] == "upcoming" || e["status"] == "in_progress")
           .toList();
     }
     return bookings
