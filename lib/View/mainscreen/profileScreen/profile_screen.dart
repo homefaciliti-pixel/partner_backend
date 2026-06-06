@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../ViewModel/auth/auth_viewmodel.dart';
+import 'static_page_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -91,6 +92,22 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
+            // APP INFORMATION
+            const Text(
+              "App Information",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0B5FA5),
+              ),
+            ),
+            const SizedBox(height: 10),
+            buildLinkTile(context, "About Us", Icons.info_outline, "About Us"),
+            buildLinkTile(context, "Terms & Conditions", Icons.description_outlined, "Terms and Conditions"),
+            buildLinkTile(context, "Privacy Policy", Icons.privacy_tip_outlined, "Privacy Policy"),
+
+            const SizedBox(height: 20),
+
             //  DOCUMENT IMAGES (SAFE CHECK)
             Row(
               children: [
@@ -120,8 +137,6 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-
-
           ],
         ),
       ),
@@ -143,6 +158,39 @@ class ProfileScreen extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold)),
           Text(value ?? ""),
         ],
+      ),
+    );
+  }
+
+  Widget buildLinkTile(BuildContext context, String title, IconData icon, String pageTitle) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.01),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xFF0B5FA5)),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF374151)),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StaticPageScreen(pageTitle: pageTitle),
+            ),
+          );
+        },
       ),
     );
   }

@@ -244,6 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   File? aadharFront;
   File? aadharBack;
   File? panImage;
+  File? policeVerification;
 
   Future<void> PickImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
@@ -444,6 +445,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             buildField("PAN Number", "Enter PAN", Icons.credit_card, panController),
             buildImageBox("Upload PAN Card", (file) => panImage = file, panImage),
 
+            const Text("Police Verification"),
+            const SizedBox(height: 5),
+            buildImageBox("Upload Police Verification Document", (file) => policeVerification = file, policeVerification),
+
             buildField("Bank Name", "Enter Bank Name", Icons.account_balance, bankNameController),
             buildField("Account Holder", "Enter Name", Icons.person, accountholderController),
             buildField("Account Number", "Enter Account No", Icons.numbers, accountnumberController,
@@ -474,6 +479,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 onPressed: () {
 
+                  if (!vm.isEdit) {
+                    if (selectedImage == null) {
+                      vm.showMessage(context, "Profile image is required");
+                      return;
+                    }
+                    if (aadharFront == null || aadharBack == null) {
+                      vm.showMessage(context, "Both Aadhaar Card images are required");
+                      return;
+                    }
+                    if (panImage == null) {
+                      vm.showMessage(context, "PAN Card image is required");
+                      return;
+                    }
+                    if (policeVerification == null) {
+                      vm.showMessage(context, "Police Verification image is required");
+                      return;
+                    }
+                  }
+
                   vm.aadharNumber = aadharController.text;
                   vm.panNumber = panController.text;
                   vm.bankName = bankNameController.text;
@@ -486,6 +510,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   vm.aadharBack = aadharBack?.path;
                   vm.panImage = panImage?.path;
                   vm.profileImage = selectedImage?.path;
+                  vm.policeVerificationImage = policeVerification?.path;
 
                   vm.register(
                     name: nameController.text,

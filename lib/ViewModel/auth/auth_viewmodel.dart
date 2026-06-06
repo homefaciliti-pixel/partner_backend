@@ -11,8 +11,8 @@ class AuthViewModel extends ChangeNotifier {
 
   // Base URL config:
   // For android emulator, use 10.0.2.2. For physical devices or iOS simulators/Web, use localhost or your computer's IP.
-  static const String baseUrl = "http://10.0.2.2:5000/api";
-  static const String imageBaseUrl = "http://10.0.2.2:5000";
+  static const String baseUrl = "https://partner-backend-2.onrender.com/api";
+  static const String imageBaseUrl = "https://partner-backend-2.onrender.com";
   String? token;
 
   AuthViewModel() {
@@ -68,6 +68,30 @@ class AuthViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // Fetch page content dynamically from the backend (About Us, Terms, Privacy Policy)
+  Future<String?> fetchPageContent(String title) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/pages'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        if (data['success'] == true && data['data'] != null) {
+          final List<dynamic> pages = data['data'];
+          final page = pages.firstWhere(
+            (p) => p['title'].toString().toLowerCase().trim() == title.toLowerCase().trim(),
+            orElse: () => null,
+          );
+          if (page != null) {
+            return page['description'];
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching page content for $title: $e");
+    }
+    return null;
+  }
+
 
   // ================= LOGIN =================
 
@@ -161,6 +185,7 @@ class AuthViewModel extends ChangeNotifier {
   String? ifscCode;
   String? hasVehicle;
   String? profileImage;
+  String? policeVerificationImage;
 
   Future<void> register({
     required String name,
@@ -234,6 +259,9 @@ class AuthViewModel extends ChangeNotifier {
       }
       if (panImage != null && panImage!.isNotEmpty) {
         request.files.add(await http.MultipartFile.fromPath('panImage', panImage!));
+      }
+      if (policeVerificationImage != null && policeVerificationImage!.isNotEmpty) {
+        request.files.add(await http.MultipartFile.fromPath('policeVerification', policeVerificationImage!));
       }
 
       final streamedResponse = await request.send();
