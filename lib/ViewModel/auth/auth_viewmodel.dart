@@ -127,6 +127,7 @@ class AuthViewModel extends ChangeNotifier {
         token = data['token'];
         final p = data['partner'];
         user = UserModel(
+          id: p['id'] ?? 0,
           name: p['name'] ?? '',
           phone: p['phone'] ?? '',
           email: p['email'] ?? '',
@@ -149,6 +150,7 @@ class AuthViewModel extends ChangeNotifier {
           accountNumber: p['accountNumber'] ?? '',
           ifscCode: p['ifscCode'] ?? '',
           profileImage: p['profileImage'] ?? '',
+          isPaid: p['isPaid'] == true || p['isPaid'] == 1,
         );
 
         isLoginSuccess = true;
@@ -274,6 +276,7 @@ class AuthViewModel extends ChangeNotifier {
         final p = data['partner'];
 
         user = UserModel(
+          id: p['id'] ?? 0,
           name: p['name'] ?? '',
           phone: p['phone'] ?? '',
           email: p['email'] ?? '',
@@ -296,6 +299,7 @@ class AuthViewModel extends ChangeNotifier {
           accountNumber: p['accountNumber'] ?? '',
           ifscCode: p['ifscCode'] ?? '',
           profileImage: p['profileImage'] ?? '',
+          isPaid: p['isPaid'] == true || p['isPaid'] == 1,
         );
 
         isLoginSuccess = true;
@@ -357,6 +361,7 @@ class AuthViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final p = data['partner'];
         user = UserModel(
+          id: p['id'] ?? 0,
           name: p['name'] ?? '',
           phone: p['phone'] ?? '',
           email: p['email'] ?? '',
@@ -379,6 +384,7 @@ class AuthViewModel extends ChangeNotifier {
           accountNumber: p['accountNumber'] ?? '',
           ifscCode: p['ifscCode'] ?? '',
           profileImage: p['profileImage'] ?? '',
+          isPaid: p['isPaid'] == true || p['isPaid'] == 1,
         );
         notifyListeners();
         return true;

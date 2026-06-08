@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class UserModel {
 
+  final int id;
   final String name;
   final String phone;
   final String email;
@@ -31,8 +32,10 @@ class UserModel {
   final String ifscCode;
 
   final String? profileImage;
+  final bool isPaid;
 
   UserModel({
+    required this.id,
     required this.name,
     required this.phone,
     required this.email,
@@ -55,10 +58,12 @@ class UserModel {
     required this.accountNumber,
     required this.ifscCode,
     this.profileImage,
+    required this.isPaid,
   });
 
   // 🔥 ONLY ADD THIS (NO CHANGE ABOVE)
   UserModel copyWith({
+    int? id,
     String? name,
     String? phone,
     String? email,
@@ -81,8 +86,10 @@ class UserModel {
     String? accountNumber,
     String? ifscCode,
     String? profileImage,
+    bool? isPaid,
   }) {
     return UserModel(
+      id: id ?? this.id,
       name: name ?? this.name,
       phone: phone ?? this.phone,
       email: email ?? this.email,
@@ -105,6 +112,7 @@ class UserModel {
       accountNumber: accountNumber ?? this.accountNumber,
       ifscCode: ifscCode ?? this.ifscCode,
       profileImage: profileImage ?? this.profileImage,
+      isPaid: isPaid ?? this.isPaid,
     );
   }
 }

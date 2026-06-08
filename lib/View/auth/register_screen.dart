@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../ViewModel/auth/auth_viewmodel.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -343,7 +344,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // NAVIGATION FIX
     if (vm.isLoginSuccess) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final partnerId = vm.user?.id ?? 0;
+        if (partnerId > 0 && !(vm.user?.isPaid ?? false)) {
+          final Uri url = Uri.parse("${AuthViewModel.baseUrl}/partner/pay-redirect?partnerId=$partnerId");
+          try {
+            if (await canLaunchUrl(url)) {
+              await launchUrl(url, mode: LaunchMode.externalApplication);
+            }
+          } catch (e) {
+            debugPrint("Could not launch payment redirect: $e");
+          }
+        }
         Navigator.pushReplacementNamed(context, '/home');
         vm.resetLogin();
       });
