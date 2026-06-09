@@ -224,6 +224,28 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> checkPartnerApprovalStatus(String token, int partnerId) async {
+    try {
+      final response = await http.get(
+        Uri.parse("${AuthViewModel.baseUrl}/partner/approval-status?id=$partnerId"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json"
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        isPaid = data["isPaid"] == true || data["isPaid"] == 1;
+        isApproved = data["isApproved"] == true || data["isApproved"] == 1;
+        notifyListeners();
+      } else {
+        debugPrint("Failed to check approval status: ${response.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("Error checking partner approval status: $e");
+    }
+  }
+
   Future<void> fetchEarnings(String token) async {
     try {
       final response = await http.get(

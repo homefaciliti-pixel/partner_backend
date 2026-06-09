@@ -519,8 +519,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       duration: Duration(seconds: 1),
                     ),
                   );
-                  if (authVm.token != null) {
-                    await homeVm.fetchDashboardData(authVm.token!);
+                  if (authVm.token != null && authVm.user != null) {
+                    await homeVm.checkPartnerApprovalStatus(authVm.token!, authVm.user!.id);
                     if (homeVm.isApproved) {
                       await homeVm.fetchBookings(authVm.token!);
                       await homeVm.fetchEarnings(authVm.token!);
