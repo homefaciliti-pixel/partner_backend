@@ -193,6 +193,24 @@ class HomeViewModel extends ChangeNotifier {
         final data = jsonDecode(response.body);
         isPaid = data["isPaid"] == true || data["isPaid"] == 1;
         isApproved = data["isApproved"] == true || data["isApproved"] == 1;
+        
+        if (data["banners"] != null) {
+          final List<dynamic> fetchedBanners = data["banners"];
+          banners = fetchedBanners
+              .map((b) => b.toString())
+              .where((b) => b.isNotEmpty && b != 'url' && b.startsWith('http'))
+              .toList();
+          
+          if (banners.isEmpty) {
+            // Fallback to beautiful picsum placeholders if DB doesn't have valid absolute URLs
+            banners = [
+              "https://picsum.photos/400/200",
+              "https://picsum.photos/401/200",
+              "https://picsum.photos/402/200",
+            ];
+          }
+        }
+        
         notifyListeners();
       }
     } catch (e) {
