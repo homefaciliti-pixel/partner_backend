@@ -33,6 +33,7 @@ class UserModel {
 
   final String? profileImage;
   final bool isPaid;
+  final bool isApproved;
 
   UserModel({
     required this.id,
@@ -59,6 +60,7 @@ class UserModel {
     required this.ifscCode,
     this.profileImage,
     required this.isPaid,
+    required this.isApproved,
   });
 
   // 🔥 ONLY ADD THIS (NO CHANGE ABOVE)
@@ -87,6 +89,7 @@ class UserModel {
     String? ifscCode,
     String? profileImage,
     bool? isPaid,
+    bool? isApproved,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -113,6 +116,7 @@ class UserModel {
       ifscCode: ifscCode ?? this.ifscCode,
       profileImage: profileImage ?? this.profileImage,
       isPaid: isPaid ?? this.isPaid,
+      isApproved: isApproved ?? this.isApproved,
     );
   }
 }

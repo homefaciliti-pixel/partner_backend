@@ -38,6 +38,12 @@ class HomeViewModel extends ChangeNotifier {
 
   void logout() {
     isLogout = true;
+    isPaid = false;
+    isApproved = false;
+    bookings = [];
+    totalEarning = 0;
+    todayEarning = 0;
+    monthlyEarning = 0;
     notifyListeners();
   }
 

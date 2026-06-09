@@ -24,6 +24,11 @@ class _MainScreenState extends State<MainScreen> {
       final authVm = Provider.of<AuthViewModel>(context, listen: false);
       final homeVm = Provider.of<HomeViewModel>(context, listen: false);
       if (authVm.token != null) {
+        // Initialize state from authVm.user to prevent leakage from previous logins
+        homeVm.isPaid = authVm.user?.isPaid ?? false;
+        homeVm.isApproved = authVm.user?.isApproved ?? false;
+        homeVm.notifyListeners(); // Force dashboard view update with correct initial state
+        
         homeVm.fetchDashboardData(authVm.token!);
         homeVm.fetchBookings(authVm.token!);
         homeVm.fetchEarnings(authVm.token!);

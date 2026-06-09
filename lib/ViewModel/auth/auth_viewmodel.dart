@@ -151,6 +151,7 @@ class AuthViewModel extends ChangeNotifier {
           ifscCode: p['ifscCode'] ?? '',
           profileImage: p['profileImage'] ?? '',
           isPaid: p['isPaid'] == true || p['isPaid'] == 1,
+          isApproved: p['isApproved'] == true || p['isApproved'] == 1,
         );
 
         isLoginSuccess = true;
@@ -300,6 +301,7 @@ class AuthViewModel extends ChangeNotifier {
           ifscCode: p['ifscCode'] ?? '',
           profileImage: p['profileImage'] ?? '',
           isPaid: p['isPaid'] == true || p['isPaid'] == 1,
+          isApproved: p['isApproved'] == true || p['isApproved'] == 1,
         );
 
         isLoginSuccess = true;
@@ -385,6 +387,7 @@ class AuthViewModel extends ChangeNotifier {
           ifscCode: p['ifscCode'] ?? '',
           profileImage: p['profileImage'] ?? '',
           isPaid: p['isPaid'] == true || p['isPaid'] == 1,
+          isApproved: p['isApproved'] == true || p['isApproved'] == 1,
         );
         notifyListeners();
         return true;
