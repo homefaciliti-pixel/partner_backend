@@ -347,7 +347,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final partnerId = vm.user?.id ?? 0;
         if (partnerId > 0 && !(vm.user?.isPaid ?? false)) {
-          final Uri url = Uri.parse("${AuthViewModel.baseUrl}/partner/pay-redirect?partnerId=$partnerId");
+          final String redirectUrl = vm.paymentUrl ?? "${AuthViewModel.baseUrl}/partner/pay-redirect?partnerId=$partnerId";
+          final Uri url = Uri.parse(redirectUrl);
           try {
             if (await canLaunchUrl(url)) {
               await launchUrl(url, mode: LaunchMode.externalApplication);

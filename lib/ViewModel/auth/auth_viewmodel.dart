@@ -125,6 +125,7 @@ class AuthViewModel extends ChangeNotifier {
       isLoading = false;
       if (response.statusCode == 200) {
         token = data['token'];
+        paymentUrl = data['paymentUrl'];
         final p = data['partner'];
         user = UserModel(
           id: p['id'] ?? 0,
@@ -172,9 +173,11 @@ class AuthViewModel extends ChangeNotifier {
 
   void resetLogin() {
     isLoginSuccess = false;
+    paymentUrl = null;
   }
 
   UserModel? user;
+  String? paymentUrl;
 
   //  EXTRA DATA VARIABLES
   String? aadharNumber;
@@ -274,6 +277,7 @@ class AuthViewModel extends ChangeNotifier {
       isLoading = false;
       if (response.statusCode == 201) {
         token = data['token'];
+        paymentUrl = data['paymentUrl'];
         final p = data['partner'];
 
         user = UserModel(
@@ -484,6 +488,7 @@ class AuthViewModel extends ChangeNotifier {
   void logout() {
     user = null;            //  user data clear
     isEdit = false;         //  edit mode off
+    paymentUrl = null;
     notifyListeners();
   }
 
