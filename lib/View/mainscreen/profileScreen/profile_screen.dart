@@ -45,9 +45,11 @@ class ProfileScreen extends StatelessWidget {
                 radius: 50,
                 backgroundColor: Colors.grey.shade300,
                 backgroundImage: (user.profileImage != null && user.profileImage!.isNotEmpty)
-                    ? (user.profileImage!.startsWith('/uploads') || user.profileImage!.startsWith('http')
-                        ? NetworkImage("${AuthViewModel.imageBaseUrl}${user.profileImage!}")
-                        : FileImage(File(user.profileImage!))) as ImageProvider
+                    ? (user.profileImage!.startsWith('http')
+                        ? NetworkImage(user.profileImage!)
+                        : (user.profileImage!.startsWith('/uploads') || user.profileImage!.startsWith('/')
+                            ? NetworkImage("${AuthViewModel.imageBaseUrl}${user.profileImage!}")
+                            : FileImage(File(user.profileImage!)))) as ImageProvider
                     : null,
                 child: (user.profileImage == null || user.profileImage!.isEmpty)
                     ? const Icon(Icons.person, size: 40)
@@ -114,11 +116,14 @@ class ProfileScreen extends StatelessWidget {
                 if (user.aadharFront != null && user.aadharFront!.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: user.aadharFront!.startsWith('/uploads') || user.aadharFront!.startsWith('http')
-                        ? Image.network("${AuthViewModel.imageBaseUrl}${user.aadharFront!}",
+                    child: user.aadharFront!.startsWith('http')
+                        ? Image.network(user.aadharFront!,
                             width: 80, height: 80, fit: BoxFit.cover)
-                        : Image.file(File(user.aadharFront!),
-                            width: 80, height: 80, fit: BoxFit.cover),
+                        : (user.aadharFront!.startsWith('/uploads') || user.aadharFront!.startsWith('/')
+                            ? Image.network("${AuthViewModel.imageBaseUrl}${user.aadharFront!}",
+                                width: 80, height: 80, fit: BoxFit.cover)
+                            : Image.file(File(user.aadharFront!),
+                                width: 80, height: 80, fit: BoxFit.cover)),
                   ),
 
                 const SizedBox(width: 10),
@@ -126,11 +131,14 @@ class ProfileScreen extends StatelessWidget {
                 if (user.panImage != null && user.panImage!.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: user.panImage!.startsWith('/uploads') || user.panImage!.startsWith('http')
-                        ? Image.network("${AuthViewModel.imageBaseUrl}${user.panImage!}",
+                    child: user.panImage!.startsWith('http')
+                        ? Image.network(user.panImage!,
                             width: 80, height: 80, fit: BoxFit.cover)
-                        : Image.file(File(user.panImage!),
-                            width: 80, height: 80, fit: BoxFit.cover),
+                        : (user.panImage!.startsWith('/uploads') || user.panImage!.startsWith('/')
+                            ? Image.network("${AuthViewModel.imageBaseUrl}${user.panImage!}",
+                                width: 80, height: 80, fit: BoxFit.cover)
+                            : Image.file(File(user.panImage!),
+                                width: 80, height: 80, fit: BoxFit.cover)),
                   ),
               ],
             ),

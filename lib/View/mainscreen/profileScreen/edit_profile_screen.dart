@@ -116,7 +116,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 backgroundImage: profileImage != null
                     ? FileImage(profileImage!)
                     : (vm.user!.profileImage != null && vm.user!.profileImage!.isNotEmpty)
-                        ? NetworkImage("${AuthViewModel.imageBaseUrl}${vm.user!.profileImage!}")
+                        ? (vm.user!.profileImage!.startsWith('http')
+                            ? NetworkImage(vm.user!.profileImage!)
+                            : NetworkImage("${AuthViewModel.imageBaseUrl}${vm.user!.profileImage!}"))
                         : null as ImageProvider?,
                 child: (profileImage == null && (vm.user!.profileImage == null || vm.user!.profileImage!.isEmpty))
                     ? Icon(Icons.camera_alt)
@@ -406,7 +408,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: aadharFront != null
                     ? Image.file(aadharFront!, fit: BoxFit.cover)
                     : (vm.user!.aadharFront.isNotEmpty
-                        ? Image.network("${AuthViewModel.imageBaseUrl}${vm.user!.aadharFront}", fit: BoxFit.cover)
+                        ? (vm.user!.aadharFront.startsWith('http')
+                            ? Image.network(vm.user!.aadharFront, fit: BoxFit.cover)
+                            : Image.network("${AuthViewModel.imageBaseUrl}${vm.user!.aadharFront}", fit: BoxFit.cover))
                         : Center(child: Text("Front Image"))),
               ),
             ),
@@ -441,7 +445,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: aadharBack != null
                     ? Image.file(aadharBack!, fit: BoxFit.cover)
                     : (vm.user!.aadharBack.isNotEmpty
-                        ? Image.network("${AuthViewModel.imageBaseUrl}${vm.user!.aadharBack}", fit: BoxFit.cover)
+                        ? (vm.user!.aadharBack.startsWith('http')
+                            ? Image.network(vm.user!.aadharBack, fit: BoxFit.cover)
+                            : Image.network("${AuthViewModel.imageBaseUrl}${vm.user!.aadharBack}", fit: BoxFit.cover))
                         : Center(child: Text("Back Image"))),
               ),
             ),
@@ -537,7 +543,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: panImage != null
                     ? Image.file(panImage!, fit: BoxFit.cover)
                     : (vm.user!.panImage.isNotEmpty
-                        ? Image.network("${AuthViewModel.imageBaseUrl}${vm.user!.panImage}", fit: BoxFit.cover)
+                        ? (vm.user!.panImage.startsWith('http')
+                            ? Image.network(vm.user!.panImage, fit: BoxFit.cover)
+                            : Image.network("${AuthViewModel.imageBaseUrl}${vm.user!.panImage}", fit: BoxFit.cover))
                         : Center(child: Text("PAN Image"))),
               ),
             ),
