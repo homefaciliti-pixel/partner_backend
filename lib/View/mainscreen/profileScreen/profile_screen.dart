@@ -4,8 +4,23 @@ import 'package:provider/provider.dart';
 import '../../../ViewModel/auth/auth_viewmodel.dart';
 import 'static_page_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh profile data from server when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = Provider.of<AuthViewModel>(context, listen: false);
+      vm.refreshProfile();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,19 +167,33 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget buildTile(String title, String? value) {
+    final bool isEmpty = value == null || value.trim().isEmpty;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title,
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(value ?? ""),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF374151))),
+          Text(
+            isEmpty ? "Not Provided" : value!,
+            style: TextStyle(
+              color: isEmpty ? Colors.grey : Colors.black87,
+              fontStyle: isEmpty ? FontStyle.italic : FontStyle.normal,
+            ),
+          ),
         ],
       ),
     );

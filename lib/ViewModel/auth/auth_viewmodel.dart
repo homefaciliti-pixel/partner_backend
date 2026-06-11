@@ -406,6 +406,52 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  // ================= REFRESH PROFILE =================
+
+  Future<void> refreshProfile() async {
+    if (token == null) return;
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/partner/profile'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final p = data['partner'];
+        user = UserModel(
+          id: p['id'] ?? 0,
+          name: p['name'] ?? '',
+          phone: p['phone'] ?? '',
+          email: p['email'] ?? '',
+          gender: p['gender'] ?? '',
+          address: p['address'] ?? '',
+          state: p['state'] ?? '',
+          city: p['city'] ?? '',
+          locality: p['locality'] ?? '',
+          category: p['category'] ?? '',
+          subCategory: p['subCategory'] ?? '',
+          hasVehicle: p['hasVehicle'] ?? '',
+          services: p['services'] ?? '',
+          aadharNumber: p['aadharNumber'] ?? '',
+          aadharFront: p['aadharFront'] ?? '',
+          aadharBack: p['aadharBack'] ?? '',
+          panNumber: p['panNumber'] ?? '',
+          panImage: p['panImage'] ?? '',
+          bankName: p['bankName'] ?? '',
+          accountHolder: p['accountHolder'] ?? '',
+          accountNumber: p['accountNumber'] ?? '',
+          ifscCode: p['ifscCode'] ?? '',
+          profileImage: p['profileImage'] ?? '',
+          isPaid: p['isPaid'] == true || p['isPaid'] == 1,
+          isApproved: p['isApproved'] == true || p['isApproved'] == 1,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error refreshing profile: $e");
+    }
+  }
+
   // ================= COMMON =================
 
 
