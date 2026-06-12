@@ -112,7 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               Colors.purple,
                               onTap: () {
                                 homeVm.changeTab(1);
-                                homeVm.changeFilter("upcoming");
+                                homeVm.changeFilter("in_progress");
                               },
                             ),
     
@@ -271,13 +271,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (status == "in_progress" ? Colors.orange : Colors.green).withOpacity(0.1),
+                    color: (status == "in_progress" 
+                        ? Colors.orange 
+                        : (status == "accepted" ? Colors.green : Colors.blue)).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    status == "in_progress" ? "IN PROGRESS" : "UPCOMING",
+                    status == "in_progress" 
+                        ? "IN PROGRESS" 
+                        : (status == "accepted" ? "ACCEPTED" : "PENDING"),
                     style: TextStyle(
-                      color: status == "in_progress" ? Colors.orange : Colors.green,
+                      color: status == "in_progress" 
+                          ? Colors.orange 
+                          : (status == "accepted" ? Colors.green : Colors.blue),
                       fontWeight: FontWeight.bold,
                       fontSize: 11,
                     ),
