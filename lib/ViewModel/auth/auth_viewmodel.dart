@@ -128,7 +128,7 @@ class AuthViewModel extends ChangeNotifier {
         paymentUrl = data['paymentUrl'];
         final p = data['partner'];
         user = UserModel(
-          id: p['id'] ?? 0,
+          id: p['id'] is int ? p['id'] : (int.tryParse(p['id']?.toString() ?? '') ?? 0),
           name: p['name'] ?? '',
           phone: p['phone'] ?? '',
           email: p['email'] ?? '',
@@ -281,7 +281,7 @@ class AuthViewModel extends ChangeNotifier {
         final p = data['partner'];
 
         user = UserModel(
-          id: p['id'] ?? 0,
+          id: p['id'] is int ? p['id'] : (int.tryParse(p['id']?.toString() ?? '') ?? 0),
           name: p['name'] ?? '',
           phone: p['phone'] ?? '',
           email: p['email'] ?? '',
@@ -367,7 +367,7 @@ class AuthViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final p = data['partner'];
         user = UserModel(
-          id: p['id'] ?? 0,
+          id: p['id'] is int ? p['id'] : (int.tryParse(p['id']?.toString() ?? '') ?? 0),
           name: p['name'] ?? '',
           phone: p['phone'] ?? '',
           email: p['email'] ?? '',
@@ -419,7 +419,7 @@ class AuthViewModel extends ChangeNotifier {
         final data = jsonDecode(response.body);
         final p = data['partner'];
         user = UserModel(
-          id: p['id'] ?? 0,
+          id: p['id'] is int ? p['id'] : (int.tryParse(p['id']?.toString() ?? '') ?? 0),
           name: p['name'] ?? '',
           phone: p['phone'] ?? '',
           email: p['email'] ?? '',
