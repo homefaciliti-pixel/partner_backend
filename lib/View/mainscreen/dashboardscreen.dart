@@ -4,6 +4,7 @@ import 'package:hf_partner/ViewModel/home/home_viewmodel.dart';
 import 'package:hf_partner/View/mainscreen/booking_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -307,12 +308,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         itemCount: vm.banners.length,
         onPageChanged: vm.changeBanner,
         itemBuilder: (context, index) {
+          final bannerUrl = vm.banners[index];
+          if (bannerUrl.toLowerCase().endsWith('.mp4')) {
+            return VideoBannerWidget(url: bannerUrl);
+          }
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               image: DecorationImage(
-                image: NetworkImage(vm.banners[index]),
+                image: NetworkImage(bannerUrl),
                 fit: BoxFit.cover,
               ),
             ),
@@ -801,6 +806,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class VideoBannerWidget extends StatefulWidget {
+  final String url;
+  const VideoBannerWidget({super.key, required this.url});
+
+  @override
+  State<VideoBannerWidget> createState() => _VideoBannerWidgetState();
+}
+
+class _VideoBannerWidgetState extends State<VideoBannerWidget> {
+  late VideoPlayerController _controller;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+      ..initialize().then((_) {
+        if (mounted) {
+          setState(() {
+            _isInitialized = true;
+          });
+          _controller.setLooping(true);
+          _controller.setVolume(0.0); // Mute video banner
+          _controller.play();
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey.shade200,
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          width: double.infinity,
+          height: 140,
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: _controller.value.size.width,
+              height: _controller.value.size.height,
+              child: VideoPlayer(_controller),
+            ),
+          ),
+        ),
       ),
     );
   }

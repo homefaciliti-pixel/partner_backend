@@ -1,0 +1,93 @@
+======================================================================
+HOME FACILITI PARTNER MOBILE APP - BANNERS API DOCUMENTATION
+======================================================================
+
+Base URL: https://partner-backend-2.onrender.com/api (Local: http://localhost:3000/api)
+
+----------------------------------------------------------------------
+1. GET ACTIVE BANNERS FOR DASHBOARD
+----------------------------------------------------------------------
+Endpoint: GET /api/partner/dashboard
+Headers:
+  Authorization: Bearer <PARTNER_TOKEN>
+Description: Retrieves active banners (as absolute URLs) along with booking stats, earnings, and approval status.
+Response Example (Status 200 OK):
+{
+  "id": 80,
+  "isPaid": true,
+  "isApproved": true,
+  "razorpayKeyId": "rzp_live_xxxxxxxxxxxxxx",
+  "bookingsStats": {
+    "totalBooking": 22,
+    "upcomingBooking": 6,
+    "inProgressBooking": 15,
+    "acceptedBooking": 15,
+    "completedBooking": 1,
+    "cancelBooking": 15
+  },
+  "earningsStats": {
+    "totalEarning": 1200,
+    "todayEarning": 0,
+    "monthlyEarning": 1200,
+    "onlineEarning": 900,
+    "cashEarning": 0,
+    "payToCompany": 300,
+    "walletBalance": 900
+  },
+  "banners": [
+    "https://partner-backend-2.onrender.com/uploads/banners/save.mp4"
+  ]
+}
+
+----------------------------------------------------------------------
+2. BANNERS MANAGEMENT API (ADMIN/GLOBAL)
+----------------------------------------------------------------------
+
+2.1 GET ALL BANNERS
+-------------------
+Endpoint: GET /api/settings/banners
+Description: Retrieves a list of all banners (active and inactive) in the system.
+Response Example (Status 200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "id": 29,
+      "title": "Save Video Banner",
+      "image": "save.mp4",
+      "status": true,
+      "category": "",
+      "badge": "",
+      "subtitle": "",
+      "buttonText": "Watch Video"
+    }
+  ]
+}
+
+2.2 UPLOAD/ADD NEW BANNER
+-------------------------
+Endpoint: POST /api/settings/banners
+Request Format: multipart/form-data
+Description: Adds a new banner with an image/video file.
+Request Fields:
+- title (String, Required) - e.g., "Save Video Banner"
+- status (Boolean/String, Optional) - "true" or 1
+- image (File, Required) - The banner image or video file
+- category (String, Optional)
+- badge (String, Optional)
+- subtitle (String, Optional)
+- buttonText (String, Optional)
+Response Example (Status 201 Created):
+{
+  "success": true,
+  "data": {
+    "id": 29,
+    "title": "Save Video Banner",
+    "image": "save.mp4",
+    "status": true,
+    "category": "",
+    "badge": "",
+    "subtitle": "",
+    "buttonText": "Watch Video"
+  }
+}
