@@ -266,7 +266,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   // Start work on an assigned order
-  Future<bool> startBooking(String bookingId, String token) async {
+  Future<String?> startBooking(String bookingId, String token) async {
     try {
       final response = await http.post(
         Uri.parse("${AuthViewModel.baseUrl}/bookings/$bookingId/start"),
@@ -279,12 +279,20 @@ class HomeViewModel extends ChangeNotifier {
           bookings[idx]["status"] = "in_progress";
           notifyListeners();
         }
-        return true;
+        return null;
+      } else {
+        try {
+          final data = jsonDecode(response.body);
+          if (data is Map && data.containsKey("error")) {
+            return data["error"].toString();
+          }
+        } catch (_) {}
+        return "Failed to start work. Server returned status ${response.statusCode}.";
       }
     } catch (e) {
       debugPrint("Error starting booking: $e");
+      return "Failed to start work. Check connection.";
     }
-    return false;
   }
 
   // Complete work on a booking and trigger automated calculations on backend

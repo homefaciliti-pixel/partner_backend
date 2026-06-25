@@ -69,10 +69,10 @@ class BookingDetailScreen extends StatelessWidget {
               builder: (ctx) => const Center(child: CircularProgressIndicator()),
             );
             
-            final success = await homeVm.startBooking(bookingId, token);
+            final errorMsg = await homeVm.startBooking(bookingId, token);
             Navigator.pop(context); // Close loading dialog
             
-            if (success) {
+            if (errorMsg == null) {
               booking["status"] = "in_progress";
               (context as Element).markNeedsBuild();
               ScaffoldMessenger.of(context).showSnackBar(
@@ -80,7 +80,7 @@ class BookingDetailScreen extends StatelessWidget {
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Failed to start work. Check connection."))
+                SnackBar(content: Text(errorMsg))
               );
             }
           } else {
