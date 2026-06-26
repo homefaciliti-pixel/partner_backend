@@ -68,123 +68,133 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: !homeVm.isPaid
           ? buildPaymentRequiredView(context, homeVm, authVm)
           : homeVm.isApproved
-              ? SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 16),
-    
-                      //  BANNER
-                      buildBanner(homeVm),
-    
-                      const SizedBox(height: 10),
-    
-                      //  INDICATOR
-                      buildIndicator(homeVm),
-    
-                      const SizedBox(height: 30),
-    
-                      //  DASHBOARD CARDS (DYNAMIC + CLICKABLE)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 14,
-                          childAspectRatio: 0.9,
-                          children: [
-    
-                            //  TOTAL
-                            buildCard(
-                              homeVm.totalBooking.toString(),
-                              "Total Booking",
-                              const Color(0xFF0B5FA5),
-                              onTap: () {
-                                homeVm.changeTab(1); // booking screen
-                              },
-                            ),
-    
-                            //  ACCEPTED
-                            buildCard(
-                              homeVm.acceptedBooking.toString(),
-                              "Accepted Booking",
-                              Colors.purple,
-                              onTap: () {
-                                homeVm.changeTab(1);
-                                homeVm.changeFilter("in_progress");
-                              },
-                            ),
-    
-                            //  UPCOMING
-                            buildCard(
-                              homeVm.upcomingBooking.toString(),
-                              "Upcoming Booking",
-                              Colors.green,
-                              onTap: () {
-                                homeVm.changeTab(1);
-                                homeVm.changeFilter("upcoming");
-                              },
-                            ),
-    
-                            //  IN PROGRESS
-                            buildCard(
-                              homeVm.inProgressBooking.toString(),
-                              "In Progress",
-                              Colors.orange,
-                              onTap: () {
-                                homeVm.changeTab(1);
-                                homeVm.changeFilter("in_progress");
-                              },
-                            ),
-    
-                            //  COMPLETED
-                            buildCard(
-                              homeVm.completedBooking.toString(),
-                              "Completed Booking",
-                              Colors.blue,
-                              onTap: () {
-                                homeVm.changeTab(1);
-                                homeVm.changeFilter("completed");
-                              },
-                            ),
-    
-                            //  CANCEL
-                            buildCard(
-                              homeVm.cancelBooking.toString(),
-                              "Cancel Booking",
-                              Colors.black,
-                              onTap: () {
-                                homeVm.changeTab(1);
-                                homeVm.changeFilter("cancel");
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-    
-                      const SizedBox(height: 24),
-    
-                      // DEDICATED ACCEPTED BOOKINGS SECTION
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          "Accepted Bookings",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF0B5FA5),
+              ? RefreshIndicator(
+                  onRefresh: () async {
+                    if (authVm.token != null) {
+                      await homeVm.fetchDashboardData(authVm.token!);
+                      await homeVm.fetchBookings(authVm.token!);
+                      await homeVm.fetchEarnings(authVm.token!);
+                    }
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+      
+                        //  BANNER
+                        buildBanner(homeVm),
+      
+                        const SizedBox(height: 10),
+      
+                        //  INDICATOR
+                        buildIndicator(homeVm),
+      
+                        const SizedBox(height: 30),
+      
+                        //  DASHBOARD CARDS (DYNAMIC + CLICKABLE)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 14,
+                            childAspectRatio: 0.9,
+                            children: [
+      
+                              //  TOTAL
+                              buildCard(
+                                homeVm.totalBooking.toString(),
+                                "Total Booking",
+                                const Color(0xFF0B5FA5),
+                                onTap: () {
+                                  homeVm.changeTab(1); // booking screen
+                                },
+                              ),
+      
+                              //  ACCEPTED
+                              buildCard(
+                                homeVm.acceptedBooking.toString(),
+                                "Accepted Booking",
+                                Colors.purple,
+                                onTap: () {
+                                  homeVm.changeTab(1);
+                                  homeVm.changeFilter("in_progress");
+                                },
+                              ),
+      
+                              //  UPCOMING
+                              buildCard(
+                                homeVm.upcomingBooking.toString(),
+                                "Upcoming Booking",
+                                Colors.green,
+                                onTap: () {
+                                  homeVm.changeTab(1);
+                                  homeVm.changeFilter("upcoming");
+                                },
+                              ),
+      
+                              //  IN PROGRESS
+                              buildCard(
+                                homeVm.inProgressBooking.toString(),
+                                "In Progress",
+                                Colors.orange,
+                                onTap: () {
+                                  homeVm.changeTab(1);
+                                  homeVm.changeFilter("in_progress");
+                                },
+                              ),
+      
+                              //  COMPLETED
+                              buildCard(
+                                homeVm.completedBooking.toString(),
+                                "Completed Booking",
+                                Colors.blue,
+                                onTap: () {
+                                  homeVm.changeTab(1);
+                                  homeVm.changeFilter("completed");
+                                },
+                              ),
+      
+                              //  CANCEL
+                              buildCard(
+                                homeVm.cancelBooking.toString(),
+                                "Cancel Booking",
+                                Colors.black,
+                                onTap: () {
+                                  homeVm.changeTab(1);
+                                  homeVm.changeFilter("cancel");
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-    
-                      const SizedBox(height: 12),
-    
-                      buildAcceptedBookingsList(homeVm, context),
-    
-                      const SizedBox(height: 30),
-                    ],
+      
+                        const SizedBox(height: 24),
+      
+                        // DEDICATED ACCEPTED BOOKINGS SECTION
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            "Accepted Bookings",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0B5FA5),
+                            ),
+                          ),
+                        ),
+      
+                        const SizedBox(height: 12),
+      
+                        buildAcceptedBookingsList(homeVm, context),
+      
+                        const SizedBox(height: 30),
+                      ],
+                    ),
                   ),
                 )
               : buildPendingApprovalView(context, homeVm, authVm),

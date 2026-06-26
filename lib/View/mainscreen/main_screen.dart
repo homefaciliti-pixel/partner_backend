@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hf_partner/View/mainscreen/profileScreen/profile_screen.dart';
 import 'package:hf_partner/ViewModel/home/home_viewmodel.dart';
@@ -16,6 +17,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  Timer? _pollingTimer;
 
   @override
   void initState() {
@@ -29,11 +31,29 @@ class _MainScreenState extends State<MainScreen> {
         homeVm.isApproved = authVm.user?.isApproved ?? false;
         homeVm.notifyListeners(); // Force dashboard view update with correct initial state
         
-        homeVm.fetchDashboardData(authVm.token!);
-        homeVm.fetchBookings(authVm.token!);
+        // Initial fetch
+        _fetchData(authVm, homeVm);
         homeVm.fetchEarnings(authVm.token!);
+
+        // Start periodic polling every 8 seconds for real-time booking updates
+        _pollingTimer = Timer.periodic(const Duration(seconds: 8), (timer) {
+          _fetchData(authVm, homeVm);
+        });
       }
     });
+  }
+
+  void _fetchData(AuthViewModel authVm, HomeViewModel homeVm) {
+    if (authVm.token != null && !homeVm.isLogout) {
+      homeVm.fetchDashboardData(authVm.token!);
+      homeVm.fetchBookings(authVm.token!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
   }
 
   @override
