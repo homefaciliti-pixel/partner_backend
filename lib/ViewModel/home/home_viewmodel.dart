@@ -1,12 +1,87 @@
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../auth/auth_viewmodel.dart';
 
 class HomeViewModel extends ChangeNotifier {
 
   bool isPaid = false;
   bool isApproved = false;
+
+  // ================= AUDIO & NOTIFICATIONS =================
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  // Tracks booking count across polls to detect new arrivals
+  int _lastKnownBookingCount = -1;
+
+  HomeViewModel() {
+    _initNotifications();
+  }
+
+  Future<void> _initNotifications() async {
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+    await _notificationsPlugin.initialize(initSettings);
+  }
+
+  /// Play beep alert sound from local asset
+  Future<void> _playBeep() async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('sounds/new_booking.wav'));
+    } catch (e) {
+      debugPrint('Beep sound error: $e');
+    }
+  }
+
+  /// Show a system push notification when a new booking arrives
+  Future<void> _showNewBookingNotification(int count) async {
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'new_booking_channel',
+      'New Bookings',
+      channelDescription: 'Alerts for new incoming bookings',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: false,
+      enableVibration: true,
+      icon: '@mipmap/ic_launcher',
+    );
+    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: false,
+    );
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+    await _notificationsPlugin.show(
+      0,
+      'New Booking!',
+      'You have $count new booking${count > 1 ? 's' : ''}. Tap to view.',
+      details,
+    );
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   //  ye main data hai (Dashboard + Booking dono yahi use karenge)
   List<Map<String, String>> bookings = [];
@@ -146,7 +221,7 @@ class HomeViewModel extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        bookings = data.map((item) => {
+        final newBookings = data.map((item) => {
           "id": item["id"].toString(),
           "status": item["status"].toString(),
           "service": item["service"].toString(),
@@ -160,6 +235,18 @@ class HomeViewModel extends ChangeNotifier {
           "customerName": (item["customerName"] ?? "").toString(),
           "customerPhone": (item["customerPhone"] ?? "").toString(),
         }).toList();
+
+        final int newCount = newBookings.length;
+
+        // Detect new bookings after first load and trigger beep + notification
+        if (_lastKnownBookingCount >= 0 && newCount > _lastKnownBookingCount) {
+          final int diff = newCount - _lastKnownBookingCount;
+          _playBeep();
+          _showNewBookingNotification(diff);
+        }
+        _lastKnownBookingCount = newCount;
+
+        bookings = newBookings;
         notifyListeners();
       }
     } catch (e) {
