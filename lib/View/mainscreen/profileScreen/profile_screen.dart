@@ -119,9 +119,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 10),
+
+            // ⭐ REFER & EARN TILE
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/referAndEarn'),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0B5FA5), Color(0xFF1976D2)],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0B5FA5).withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.card_giftcard,
+                          color: Colors.amber, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '🎁 Refer & Earn',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                          Text(
+                            'Earn ₹500 + ₹50 per order — Invite a partner!',
+                            style: TextStyle(color: Colors.white70, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios,
+                        color: Colors.white70, size: 16),
+                  ],
+                ),
+              ),
+            ),
+
             buildLinkTile(context, "About Us", Icons.info_outline, "About Us"),
             buildLinkTile(context, "Terms & Conditions", Icons.description_outlined, "Terms and Conditions"),
             buildLinkTile(context, "Privacy Policy", Icons.privacy_tip_outlined, "Privacy Policy"),
+
 
             const SizedBox(height: 20),
 
