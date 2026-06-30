@@ -108,32 +108,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               //  TOTAL
                               buildCard(
                                 homeVm.totalBooking.toString(),
-                                "Total Booking",
+                                "Total Bookings",
                                 const Color(0xFF0B5FA5),
                                 onTap: () {
-                                  homeVm.changeTab(1); // booking screen
+                                  homeVm.changeTab(1);
+                                },
+                              ),
+      
+                              //  PENDING (New requests)
+                              buildCard(
+                                homeVm.upcomingBooking.toString(),
+                                "Pending Bookings",
+                                Colors.purple,
+                                onTap: () {
+                                  homeVm.changeTab(1);
+                                  homeVm.changeFilter("upcoming");
                                 },
                               ),
       
                               //  ACCEPTED
                               buildCard(
                                 homeVm.acceptedBooking.toString(),
-                                "Accepted Booking",
-                                Colors.purple,
-                                onTap: () {
-                                  homeVm.changeTab(1);
-                                  homeVm.changeFilter("in_progress");
-                                },
-                              ),
-      
-                              //  UPCOMING
-                              buildCard(
-                                homeVm.upcomingBooking.toString(),
-                                "Upcoming Booking",
+                                "Accepted Bookings",
                                 Colors.green,
                                 onTap: () {
                                   homeVm.changeTab(1);
-                                  homeVm.changeFilter("upcoming");
+                                  homeVm.changeFilter("accepted");
                                 },
                               ),
       
@@ -151,7 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               //  COMPLETED
                               buildCard(
                                 homeVm.completedBooking.toString(),
-                                "Completed Booking",
+                                "Completed",
                                 Colors.blue,
                                 onTap: () {
                                   homeVm.changeTab(1);
@@ -159,11 +159,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 },
                               ),
       
-                              //  CANCEL
+                              //  CANCELLED
                               buildCard(
                                 homeVm.cancelBooking.toString(),
-                                "Cancel Booking",
-                                Colors.black,
+                                "Cancelled",
+                                Colors.red.shade700,
                                 onTap: () {
                                   homeVm.changeTab(1);
                                   homeVm.changeFilter("cancel");

@@ -88,24 +88,30 @@ class HomeViewModel extends ChangeNotifier {
 
   // ================= DASHBOARD (AUTO CALCULATED) =================
 
-  //  ye sab bookings list se auto calculate hoga
+  // Backend status values: pending | accepted | in_progress | completed | cancel
 
+  /// All bookings count
   int get totalBooking => bookings.length;
 
+  /// Pending = new/unassigned bookings waiting for partner to act
   int get upcomingBooking =>
       bookings.where((e) => e["status"] == "pending").length;
 
-  int get inProgressBooking =>
-      bookings.where((e) => e["status"] == "accepted" || e["status"] == "in_progress").length;
-
+  /// Accepted = partner accepted, work not started yet
   int get acceptedBooking =>
-      bookings.where((e) => e["status"] == "accepted" || e["status"] == "in_progress").length;
+      bookings.where((e) => e["status"] == "accepted").length;
 
+  /// In Progress = work started by partner
+  int get inProgressBooking =>
+      bookings.where((e) => e["status"] == "in_progress").length;
+
+  /// Completed = work done
   int get completedBooking =>
       bookings.where((e) => e["status"] == "completed").length;
 
+  /// Cancelled = cancelled by user or admin
   int get cancelBooking =>
-      bookings.where((e) => e["status"] == "cancel").length;
+      bookings.where((e) => e["status"] == "cancel" || e["status"] == "cancelled").length;
 
   // ================= LOGOUT =================
 
@@ -184,19 +190,20 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   List<Map<String, String>> get filteredBookings {
-    if (selectedFilter == "upcoming") {
-      return bookings
-          .where((e) => e["status"] == "pending")
-          .toList();
+    switch (selectedFilter) {
+      case "upcoming":  // Pending new requests
+        return bookings.where((e) => e["status"] == "pending").toList();
+      case "accepted":  // Accepted, not started
+        return bookings.where((e) => e["status"] == "accepted").toList();
+      case "in_progress":  // Work started
+        return bookings.where((e) => e["status"] == "in_progress").toList();
+      case "completed":
+        return bookings.where((e) => e["status"] == "completed").toList();
+      case "cancel":
+        return bookings.where((e) => e["status"] == "cancel" || e["status"] == "cancelled").toList();
+      default:
+        return bookings;
     }
-    if (selectedFilter == "in_progress") {
-      return bookings
-          .where((e) => e["status"] == "accepted" || e["status"] == "in_progress")
-          .toList();
-    }
-    return bookings
-        .where((e) => e["status"] == selectedFilter)
-        .toList();
   }
 
 
