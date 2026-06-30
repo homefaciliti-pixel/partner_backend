@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:app_links/app_links.dart';
 import '../../Models/user_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
@@ -15,8 +16,43 @@ class AuthViewModel extends ChangeNotifier {
   static const String imageBaseUrl = "https://partner-backend-2.onrender.com";
   String? token;
 
+  // Referral code from deep link
+  String? referralCode;
+  late final AppLinks _appLinks;
+
   AuthViewModel() {
     fetchMetadata();
+    initDeepLinking();
+  }
+
+  void initDeepLinking() {
+    _appLinks = AppLinks();
+    
+    // Check initial link if app was closed
+    _appLinks.getInitialLink().then((uri) {
+      if (uri != null) {
+        _handleDeepLink(uri);
+      }
+    }).catchError((err) {
+      debugPrint('[DeepLink] Initial link error: $err');
+    });
+
+    // Listen for incoming links while app is running
+    _appLinks.uriLinkStream.listen((uri) {
+      _handleDeepLink(uri);
+    }, onError: (err) {
+      debugPrint('[DeepLink] Link stream error: $err');
+    });
+  }
+
+  void _handleDeepLink(Uri uri) {
+    debugPrint('[DeepLink] Received URI: $uri');
+    final ref = uri.queryParameters['ref'];
+    if (ref != null && ref.trim().isNotEmpty) {
+      referralCode = ref.trim().toUpperCase();
+      notifyListeners();
+      debugPrint('[DeepLink] Extracted referralCode: $referralCode');
+    }
   }
 
   // Fetch dynamic location and category dropdown options from the database
@@ -252,6 +288,7 @@ class AuthViewModel extends ChangeNotifier {
       request.fields['accountHolder'] = accountHolder ?? '';
       request.fields['accountNumber'] = accountNumber ?? '';
       request.fields['ifscCode'] = ifscCode ?? '';
+      request.fields['referralCode'] = referralCode ?? '';
 
       // Add file fields
       if (profileImage != null && profileImage!.isNotEmpty) {

@@ -469,7 +469,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             buildField("IFSC Code", "Enter IFSC", Icons.code, ifscController),
 
-
+            // ⭐ REFERRAL CODE AUTOMATICALLY APPLIED INDICATOR
+            if (vm.referralCode != null && vm.referralCode!.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green.shade300),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.green, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Referral Code Applied",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            vm.referralCode!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade900,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
             if (!vm.isEdit) ...[
               buildField("Password", "Password", Icons.lock, passwordController, isPassword: true),
