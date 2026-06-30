@@ -278,7 +278,7 @@ class _ReferAndEarnScreenState extends State<ReferAndEarnScreen>
       ('1', 'Share Code', 'Share your referral code with another partner', Icons.share, Colors.blue),
       ('2', 'They Register', 'They register using your code & get approved', Icons.person_add, Colors.purple),
       ('3', '₹500 Locked', '₹500 is added to your wallet (locked)', Icons.lock, Colors.orange),
-      ('4', '5 Orders in 5 Days', 'They complete 5 orders within 5 days', Icons.check_circle, Colors.teal),
+      ('4', '5 Orders Completed', 'They complete 5 orders successfully', Icons.check_circle, Colors.teal),
       ('5', '₹500 Unlocked!', 'Your ₹500 unlocks & ₹50 per order too!', Icons.lock_open, Colors.green),
     ];
 
@@ -344,10 +344,9 @@ class _ReferAndEarnScreenState extends State<ReferAndEarnScreen>
           ),
           const SizedBox(height: 6),
           _ruleRow('₹500 referral reward will be LOCKED initially'),
-          _ruleRow('Unlocks only when referred partner completes 5 orders in 5 days'),
+          _ruleRow('Unlocks only when referred partner completes 5 orders'),
           _ruleRow('₹50 per order is directly withdrawable (Level 1)'),
           _ruleRow('₹20 per order for Level 2 indirect referrals'),
-          _ruleRow('If 5 orders not completed in 5 days, ₹500 expires'),
           _ruleRow('Self-referral is NOT allowed'),
         ],
       ),
