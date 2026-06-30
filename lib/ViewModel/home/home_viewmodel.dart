@@ -38,11 +38,17 @@ class HomeViewModel extends ChangeNotifier {
     await _notificationsPlugin.initialize(initSettings);
   }
 
-  /// Play beep alert sound from local asset
+  /// Play beep alert sound from local asset (looping for 5 seconds)
   Future<void> _playBeep() async {
     try {
       await _audioPlayer.stop();
+      await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.play(AssetSource('sounds/new_booking.wav'));
+      
+      // Stop the audio loop after exactly 5 seconds
+      Future.delayed(const Duration(seconds: 5), () async {
+        await _audioPlayer.stop();
+      });
     } catch (e) {
       debugPrint('Beep sound error: $e');
     }
