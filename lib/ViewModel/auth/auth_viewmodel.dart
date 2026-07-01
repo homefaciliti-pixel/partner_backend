@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:app_links/app_links.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Models/user_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
@@ -23,6 +24,21 @@ class AuthViewModel extends ChangeNotifier {
   AuthViewModel() {
     fetchMetadata();
     initDeepLinking();
+    checkStoredReferral();
+  }
+
+  Future<void> checkStoredReferral() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final code = prefs.getString("referralCode");
+      if (code != null && code.trim().isNotEmpty) {
+        referralCode = code.trim().toUpperCase();
+        notifyListeners();
+        debugPrint('[Referral] Loaded stored referral code from SharedPreferences: $referralCode');
+      }
+    } catch (e) {
+      debugPrint('[Referral] Error loading stored referral code from SharedPreferences: $e');
+    }
   }
 
   void initDeepLinking() {
@@ -45,13 +61,21 @@ class AuthViewModel extends ChangeNotifier {
     });
   }
 
-  void _handleDeepLink(Uri uri) {
+  void _handleDeepLink(Uri uri) async {
     debugPrint('[DeepLink] Received URI: $uri');
     final ref = uri.queryParameters['ref'];
     if (ref != null && ref.trim().isNotEmpty) {
       referralCode = ref.trim().toUpperCase();
       notifyListeners();
       debugPrint('[DeepLink] Extracted referralCode: $referralCode');
+      
+      // Also save to SharedPreferences just in case
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("referralCode", referralCode!);
+      } catch (e) {
+        debugPrint('[DeepLink] Error saving to SharedPreferences: $e');
+      }
     }
   }
 
@@ -344,6 +368,15 @@ class AuthViewModel extends ChangeNotifier {
           isPaid: p['isPaid'] == true || p['isPaid'] == 1,
           isApproved: p['isApproved'] == true || p['isApproved'] == 1,
         );
+
+        // Clear stored referral code upon successful registration
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove("referralCode");
+          referralCode = null;
+        } catch (e) {
+          debugPrint('[Referral] Error clearing stored referral code: $e');
+        }
 
         isLoginSuccess = true;
         notifyListeners();

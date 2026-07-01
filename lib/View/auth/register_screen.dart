@@ -237,6 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final accountholderController = TextEditingController();
   final accountnumberController = TextEditingController();
   final ifscController = TextEditingController();
+  final referralCodeController = TextEditingController();
 
   bool isPasswordVisible = false;
   String gender = "Male";
@@ -290,6 +291,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.initState();
 
     final vm = Provider.of<AuthViewModel>(context, listen: false);
+    if (!vm.isEdit) {
+      vm.checkStoredReferral();
+    }
 
     if (vm.isEdit && vm.user != null) {
 
@@ -510,7 +514,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
-              ),
+              )
+            else if (!vm.isEdit)
+              buildField("Referral Code (Optional)", "Enter Referral Code", Icons.card_giftcard, referralCodeController),
 
             if (!vm.isEdit) ...[
               buildField("Password", "Password", Icons.lock, passwordController, isPassword: true),
@@ -531,9 +537,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
                 ),
-                onPressed: () {
+                 onPressed: () {
+                  // ─── Text field validation ───
+                  if (nameController.text.trim().isEmpty) {
+                    vm.showMessage(context, "Full Name is required");
+                    return;
+                  }
+                  if (phoneController.text.trim().isEmpty) {
+                    vm.showMessage(context, "Phone Number is required");
+                    return;
+                  }
+                  if (emailController.text.trim().isEmpty) {
+                    vm.showMessage(context, "Email is required");
+                    return;
+                  }
+                  if (addressController.text.trim().isEmpty) {
+                    vm.showMessage(context, "Address is required");
+                    return;
+                  }
+                  if (vm.selectedState == null || vm.selectedState!.isEmpty) {
+                    vm.showMessage(context, "Please select your State");
+                    return;
+                  }
+                  if (vm.selectedCity == null || vm.selectedCity!.isEmpty) {
+                    vm.showMessage(context, "Please select your City");
+                    return;
+                  }
+                  if ((vm.selectedLocality == null || vm.selectedLocality!.isEmpty) &&
+                      localityController.text.trim().isEmpty) {
+                    vm.showMessage(context, "Please select or enter your Locality");
+                    return;
+                  }
 
-                  if (!vm.isEdit) {
+                   if (!vm.isEdit) {
                     if (selectedImage == null) {
                       vm.showMessage(context, "Profile image is required");
                       return;
@@ -565,6 +601,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   vm.panImage = panImage?.path;
                   vm.profileImage = selectedImage?.path;
                   vm.policeVerificationImage = policeVerification?.path;
+
+                  if (vm.referralCode == null || vm.referralCode!.trim().isEmpty) {
+                    if (referralCodeController.text.trim().isNotEmpty) {
+                      vm.referralCode = referralCodeController.text.trim().toUpperCase();
+                    }
+                  }
 
                   vm.register(
                     name: nameController.text,
