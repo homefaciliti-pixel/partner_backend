@@ -131,6 +131,8 @@ class HomeViewModel extends ChangeNotifier {
     totalEarning = 0;
     todayEarning = 0;
     monthlyEarning = 0;
+    cashEarning = 0;
+    onlineEarning = 0;
     notifyListeners();
   }
 
@@ -219,11 +221,17 @@ class HomeViewModel extends ChangeNotifier {
 //  total wallet
   int totalEarning = 0;
 
-//  cash earning
+//  today earning
   int todayEarning = 0;
 
-//  online earning
+//  monthly earning
   int monthlyEarning = 0;
+
+//  cash earning
+  int cashEarning = 0;
+
+//  online earning
+  int onlineEarning = 0;
 
   Future<void> fetchBookings(String token) async {
     try {
@@ -358,6 +366,8 @@ class HomeViewModel extends ChangeNotifier {
         totalEarning = data["totalEarning"] ?? 0;
         todayEarning = data["todayEarning"] ?? 0;
         monthlyEarning = data["monthlyEarning"] ?? 0;
+        cashEarning = data["cashEarning"] ?? 0;
+        onlineEarning = data["onlineEarning"] ?? 0;
         notifyListeners();
       }
     } catch (e) {

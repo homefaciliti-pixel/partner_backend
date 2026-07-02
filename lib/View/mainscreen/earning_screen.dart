@@ -94,13 +94,13 @@ class _EarningScreenState extends State<EarningScreen> {
 
               buildCard(
                 "Cash Earning",
-                vm.todayEarning,
+                vm.cashEarning,
                 [Color(0xFFA18CD1), Color(0xFFFBC2EB)],
               ),
 
               buildCard(
                 "Online Earning",
-                vm.monthlyEarning,
+                vm.onlineEarning,
                 [Color(0xFF84FAB0), Color(0xFF8FD3F4)],
               ),
             ],
