@@ -145,7 +145,7 @@ class ReferralViewModel extends ChangeNotifier {
         referralCode = data['referralCode'] ?? '';
         shareLink = data['shareLink'] ?? '';
         shareMessage = data['shareMessage'] ??
-            'Join Home Faciliti! Use my code $referralCode';
+            'Join Home Faciliti! Register using my referral link: $shareLink or use code: $referralCode';
 
         final wallet = data['wallet'] as Map<String, dynamic>? ?? {};
         availableWallet = (wallet['available'] ?? 0).toDouble();
