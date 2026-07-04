@@ -77,8 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: TextField(
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
+                    _CountryCodeStrippingFormatter(),
                   ],
                   controller: phoneController,
                   decoration: InputDecoration(
@@ -194,6 +193,34 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CountryCodeStrippingFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    String text = newValue.text;
+    
+    // Remove all non-digits
+    String cleanText = text.replaceAll(RegExp(r'\D'), '');
+    
+    // Strip leading +91 or 91 if it's more than 10 digits
+    if (cleanText.startsWith('91') && cleanText.length > 10) {
+      cleanText = cleanText.substring(2);
+    }
+    
+    // Limit to 10 digits
+    if (cleanText.length > 10) {
+      cleanText = cleanText.substring(0, 10);
+    }
+    
+    return TextEditingValue(
+      text: cleanText,
+      selection: TextSelection.collapsed(offset: cleanText.length),
     );
   }
 }
