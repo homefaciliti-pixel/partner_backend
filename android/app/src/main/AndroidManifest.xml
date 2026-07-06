@@ -49,6 +49,7 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="homefaciliti.com" />
+                <data android:host="partner-backend-2.onrender.com" />
                 <data android:pathPrefix="/partner/join" />
             </intent-filter>
         </activity>
