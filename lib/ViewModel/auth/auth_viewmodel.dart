@@ -35,9 +35,22 @@ class AuthViewModel extends ChangeNotifier {
         referralCode = code.trim().toUpperCase();
         notifyListeners();
         debugPrint('[Referral] Loaded stored referral code from SharedPreferences: $referralCode');
+      } else {
+        // Fallback: Detect referral code dynamically using IP address
+        debugPrint('[Referral] No stored referral code. Checking IP-based detection...');
+        final response = await http.get(Uri.parse('$baseUrl/referral/detect'));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['success'] == true && data['referralCode'] != null) {
+            referralCode = data['referralCode'].toString().trim().toUpperCase();
+            notifyListeners();
+            await prefs.setString("referralCode", referralCode!);
+            debugPrint('[Referral] Auto-detected referral code via IP: $referralCode');
+          }
+        }
       }
     } catch (e) {
-      debugPrint('[Referral] Error loading stored referral code from SharedPreferences: $e');
+      debugPrint('[Referral] Error loading/detecting stored referral code: $e');
     }
   }
 
