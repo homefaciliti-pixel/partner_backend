@@ -582,10 +582,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       vm.showMessage(context, "PAN Card image is required");
                       return;
                     }
-                    if (policeVerification == null) {
-                      vm.showMessage(context, "Police Verification image is required");
-                      return;
-                    }
+                    // if (policeVerification == null) {
+                    //   vm.showMessage(context, "Police Verification image is required");
+                    //   return;
+                    // }
                   }
 
                   vm.aadharNumber = aadharController.text;
