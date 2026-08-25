@@ -3509,8 +3509,10 @@ router.post('/bookings/:id/complete', authenticatePartner, async (req, res) => {
       }
     }
 
-    // Mark OTP as verified in the database
-    await db.query('UPDATE otps SET status = 1, updated_at = NOW() WHERE id = ?', [otpRecord.id]);
+    // Mark OTP as verified in the database if it was verified
+    if (otpRecord) {
+      await db.query('UPDATE otps SET status = 1, updated_at = NOW() WHERE id = ?', [otpRecord.id]);
+    }
 
 
     // Get payment method from request body, default to UPI
