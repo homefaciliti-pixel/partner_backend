@@ -94,6 +94,22 @@ pool.execute = function (sql, values) {
     await connection.query(createAdminsSql);
     console.log(`✅ Table "${tablePrefix}admin_accounts" verified/created successfully.`);
 
+    // Temporary database migration to clean up partner phone numbers with +91 or 91 country code prefixes
+    try {
+      console.log('⏳ Running temporary database migration for partner phone numbers...');
+      const [migrateResult] = await connection.query(
+        `UPDATE \`${tablePrefix}partners\` SET mobile = REPLACE(mobile, '+91', '') WHERE mobile LIKE '+91%'`
+      );
+      console.log(`✅ Cleaned up ${migrateResult.affectedRows} partner phone numbers with "+91" prefix.`);
+      
+      const [migrateResult2] = await connection.query(
+        `UPDATE \`${tablePrefix}partners\` SET mobile = SUBSTRING(mobile, 3) WHERE mobile LIKE '91%' AND LENGTH(mobile) > 10`
+      );
+      console.log(`✅ Cleaned up ${migrateResult2.affectedRows} partner phone numbers with "91" prefix.`);
+    } catch (migErr) {
+      console.error('❌ Temporary database migration failed:', migErr.message);
+    }
+
     connection.release();
   } catch (error) {
     console.error('❌ Database connection/initialization failed on startup:');
