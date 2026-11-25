@@ -417,36 +417,53 @@ exports.payRedirect = async (req, res) => {
 exports.getDashboard = async (req, res) => {
   const partnerId = req.partner.id;
   const partnerName = req.partner.name;
-  const isPaid = req.partner.isPaid === 1;
-  const isApproved = req.partner.isApproved === 1;
+  const partnerMobile = req.partner.mobile;
 
+  // Registration fee is ₹0
+  const isPaid = true;
+  const isApproved = Number(req.partner.isApproved) === 1;
+
+  // --------------------------------------------------
+  // BANNERS
+  // --------------------------------------------------
   let banners = [];
+
   try {
-    const [bannersRes] = await db.query('SELECT image FROM banners WHERE status = 1');
-    banners = bannersRes.map(b => {
-      if (!b.image) return '';
-      if (b.image.startsWith('http://') || b.image.startsWith('https://')) return b.image;
-      return `${req.protocol}://${req.get('host')}/uploads/banners/${b.image}`;
-    }).filter(Boolean);
+    const [bannersRes] = await db.query(
+      'SELECT image FROM banners WHERE status = 1'
+    );
+
+    banners = bannersRes
+      .map((b) => {
+        if (!b.image) return '';
+
+        if (
+          b.image.startsWith('http://') ||
+          b.image.startsWith('https://')
+        ) {
+          return b.image;
+        }
+
+        return `${req.protocol}://${req.get('host')}/uploads/banners/${b.image}`;
+      })
+      .filter(Boolean);
   } catch (err) {
     console.error('Error fetching banners:', err);
   }
 
-  if (!isPaid || !isApproved) {
-    let razorpayOrderId = null;
-    let paymentUrl = null;
-    if (!isPaid) {
-      razorpayOrderId = await createRazorpayOrder(partnerId);
-      paymentUrl = `${req.protocol}://${req.get('host')}/api/partner/pay-redirect?partnerId=${partnerId}`;
-    }
-
+  // --------------------------------------------------
+  // APPROVAL CHECK
+  // Payment is not required (registration fee = ₹0)
+  // --------------------------------------------------
+  if (!isApproved) {
     return res.json({
       id: partnerId,
-      isPaid,
-      isApproved,
+      isPaid: true,
+      isApproved: false,
       razorpayKeyId: getRazorpayKeyId(),
-      razorpayOrderId: razorpayOrderId,
-      paymentUrl: paymentUrl,
+      razorpayOrderId: null,
+      paymentUrl: null,
+
       bookingsStats: {
         totalBooking: 0,
         upcomingBooking: 0,
@@ -456,6 +473,7 @@ exports.getDashboard = async (req, res) => {
         cancelBooking: 0,
         amcBooking: 0
       },
+
       earningsStats: {
         totalEarning: 0,
         todayEarning: 0,
@@ -465,71 +483,228 @@ exports.getDashboard = async (req, res) => {
         payToCompany: 0,
         walletBalance: 0
       },
+
       banners
     });
   }
 
+  // --------------------------------------------------
+  // APPROVED PARTNER DASHBOARD
+  // --------------------------------------------------
   try {
     const allFiltered = await getFilteredBookingsList(req.partner);
 
+    // Normalize status
+    const getStatus = (b) =>
+      String(b.status || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '_');
+
+    // --------------------------------------------------
+    // BOOKING STATISTICS
+    // --------------------------------------------------
     const totalBooking = allFiltered.length;
-    const upcomingBooking = allFiltered.filter(b => b.status === 'pending').length;
-    const acceptedBooking = allFiltered.filter(b => b.status === 'accepted' || b.status === 'in_progress').length;
-    const inProgressBooking = allFiltered.filter(b => b.status === 'accepted' || b.status === 'in_progress').length;
-    const completedBooking = allFiltered.filter(b => b.status === 'completed').length;
-    const cancelBooking = allFiltered.filter(b => b.status === 'cancel').length;
-    const amcBooking = allFiltered.filter(b => b.status === 'amc').length;
 
-    const partnerMobile = req.partner.mobile;
-    const dbWalletBalance = parseFloat(req.partner.walletBalance || 0);
-    const dbTotalEarnings = parseFloat(req.partner.totalEarnings || 0);
-    const dbPayToCompany = parseFloat(req.partner.payToCompany || 0);
+    const upcomingBooking = allFiltered.filter(
+      (b) => getStatus(b) === 'pending'
+    ).length;
 
+    const acceptedBooking = allFiltered.filter(
+      (b) => getStatus(b) === 'accepted'
+    ).length;
+
+    const inProgressBooking = allFiltered.filter(
+      (b) => getStatus(b) === 'in_progress'
+    ).length;
+
+    const completedBooking = allFiltered.filter(
+      (b) => getStatus(b) === 'completed'
+    ).length;
+
+    const cancelBooking = allFiltered.filter(
+      (b) => ['cancel', 'cancelled', 'canceled'].includes(getStatus(b))
+    ).length;
+
+    const amcBooking = allFiltered.filter(
+      (b) => getStatus(b) === 'amc'
+    ).length;
+
+    // --------------------------------------------------
+    // PARTNER WALLET / EARNING VALUES
+    // --------------------------------------------------
+    const dbWalletBalance = Number(req.partner.walletBalance || 0);
+    const dbTotalEarnings = Number(req.partner.totalEarnings || 0);
+
+    // Partner never has to pay the company
+    const dbPayToCompany = 0;
+
+    // --------------------------------------------------
+    // FETCH COMPLETED ORDERS - OLD ORDERS TABLE
+    // --------------------------------------------------
     const [adminOrders] = await db.query(
-      "SELECT serviceAmount, paymentMethod, serviceDate FROM orders WHERE (LOWER(TRIM(vendorName)) = LOWER(TRIM(?)) OR vendorMobile = ?) AND LOWER(status) = 'completed'",
+      `SELECT serviceAmount, paymentMethod, serviceDate
+       FROM orders
+       WHERE (
+         LOWER(TRIM(vendorName)) = LOWER(TRIM(?))
+         OR vendorMobile = ?
+       )
+       AND LOWER(TRIM(status)) = 'completed'`,
       [partnerName, partnerMobile]
     );
 
+    // --------------------------------------------------
+    // FETCH COMPLETED ORDERS - ORDERS V2 TABLE
+    // --------------------------------------------------
     const [v2Orders] = await db.query(
-      "SELECT price, payment, date FROM orders_v2 WHERE LOWER(TRIM(partnerName)) = LOWER(TRIM(?)) AND LOWER(status) = 'completed'",
+      `SELECT price, payment, date
+       FROM orders_v2
+       WHERE LOWER(TRIM(partnerName)) = LOWER(TRIM(?))
+       AND LOWER(TRIM(status)) = 'completed'`,
       [partnerName]
     );
 
+    // --------------------------------------------------
+    // EARNING VARIABLES
+    // --------------------------------------------------
     let totalEarningsCalculated = 0;
     let todayEarning = 0;
+    let monthlyEarning = 0;
     let cashEarning = 0;
     let onlineEarning = 0;
 
+    const now = new Date();
+
+    // Check if booking date is today
+    const isToday = (dateValue) => {
+      if (!dateValue) return false;
+
+      const d = new Date(dateValue);
+
+      if (isNaN(d.getTime())) return false;
+
+      return (
+        d.getDate() === now.getDate() &&
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear()
+      );
+    };
+
+    // Check if booking date is in current month
+    const isThisMonth = (dateValue) => {
+      if (!dateValue) return false;
+
+      const d = new Date(dateValue);
+
+      if (isNaN(d.getTime())) return false;
+
+      return (
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear()
+      );
+    };
+
+    // --------------------------------------------------
+    // CALCULATE OLD ORDERS EARNINGS
+    // Partner share = 75%
+    // --------------------------------------------------
     for (const o of adminOrders) {
-      const amount = parseFloat(o.serviceAmount || 0);
+      const amount = Number(o.serviceAmount || 0);
       const partnerShare = amount * 0.75;
-      const isCash = (o.paymentMethod || '').toLowerCase() === 'cash';
+
+      const paymentMethod = String(o.paymentMethod || '')
+        .trim()
+        .toLowerCase();
+
+      const isCash = paymentMethod === 'cash';
+
       totalEarningsCalculated += partnerShare;
-      if (isCash) cashEarning += partnerShare; else onlineEarning += partnerShare;
+
+      if (isCash) {
+        cashEarning += partnerShare;
+      } else {
+        onlineEarning += partnerShare;
+      }
+
+      if (isToday(o.serviceDate)) {
+        todayEarning += partnerShare;
+      }
+
+      if (isThisMonth(o.serviceDate)) {
+        monthlyEarning += partnerShare;
+      }
     }
 
+    // --------------------------------------------------
+    // CALCULATE V2 ORDERS EARNINGS
+    // Partner share = 75%
+    // --------------------------------------------------
     for (const o of v2Orders) {
-      const amount = parseFloat(o.price || 0);
+      const amount = Number(o.price || 0);
       const partnerShare = amount * 0.75;
-      let isCash = false;
+
+      let paymentMethod = '';
+
       try {
-        const payObj = typeof o.payment === 'string' ? JSON.parse(o.payment) : (o.payment || {});
-        isCash = (payObj.paymentMethod || '').toLowerCase() === 'cash';
-      } catch(e) {}
+        const payObj =
+          typeof o.payment === 'string'
+            ? JSON.parse(o.payment)
+            : (o.payment || {});
+
+        paymentMethod = String(
+          payObj.paymentMethod || payObj.method || ''
+        )
+          .trim()
+          .toLowerCase();
+      } catch (e) {
+        paymentMethod = '';
+      }
+
+      const isCash = paymentMethod === 'cash';
+
       totalEarningsCalculated += partnerShare;
-      if (isCash) cashEarning += partnerShare; else onlineEarning += partnerShare;
+
+      if (isCash) {
+        cashEarning += partnerShare;
+      } else {
+        onlineEarning += partnerShare;
+      }
+
+      if (isToday(o.date)) {
+        todayEarning += partnerShare;
+      }
+
+      if (isThisMonth(o.date)) {
+        monthlyEarning += partnerShare;
+      }
     }
 
-    const finalTotalEarning = Math.max(Math.round(totalEarningsCalculated), Math.round(dbTotalEarnings));
-    const finalMonthlyEarning = finalTotalEarning;
-    const finalOnlineEarning = Math.max(Math.round(onlineEarning), Math.round(dbWalletBalance));
-    const finalCashEarning = Math.max(Math.round(cashEarning), Math.round(dbPayToCompany));
+    // --------------------------------------------------
+    // FINAL EARNING CALCULATIONS
+    // --------------------------------------------------
 
-    res.json({
+    const finalTotalEarning = Math.max(
+      Math.round(totalEarningsCalculated),
+      Math.round(dbTotalEarnings)
+    );
+
+    const finalTodayEarning = Math.round(todayEarning);
+
+    const finalMonthlyEarning = Math.round(monthlyEarning);
+
+    const finalOnlineEarning = Math.round(onlineEarning);
+
+    const finalCashEarning = Math.round(cashEarning);
+
+    // --------------------------------------------------
+    // API RESPONSE
+    // --------------------------------------------------
+    return res.json({
       id: partnerId,
-      isPaid,
+      isPaid: true,
       isApproved,
       razorpayKeyId: getRazorpayKeyId(),
+
       bookingsStats: {
         totalBooking,
         upcomingBooking,
@@ -539,23 +714,28 @@ exports.getDashboard = async (req, res) => {
         cancelBooking,
         amcBooking
       },
+
       earningsStats: {
         totalEarning: finalTotalEarning,
-        todayEarning: Math.round(todayEarning),
+        todayEarning: finalTodayEarning,
         monthlyEarning: finalMonthlyEarning,
         onlineEarning: finalOnlineEarning,
         cashEarning: finalCashEarning,
-        payToCompany: dbPayToCompany,
+        payToCompany: 0,
         walletBalance: dbWalletBalance
       },
+
       banners
     });
+
   } catch (error) {
     console.error('Error loading partner dashboard:', error);
-    res.status(500).json({ error: 'Failed to retrieve dashboard: ' + error.message });
+
+    return res.status(500).json({
+      error: 'Failed to retrieve dashboard: ' + error.message
+    });
   }
 };
-
 // GET & POST /api/partner/approval-status
 exports.checkApprovalStatus = async (req, res) => {
   try {
