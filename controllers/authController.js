@@ -448,41 +448,83 @@ exports.verifyOtp = async (req, res) => {
 // POST /api/auth/forgot-password - Reset password
 // -------------------------------------------------------------
 exports.forgotPassword = async (req, res) => {
-  const { phone, password, otp } = req.body;
+  const { phone, otp } = req.body;
+
+  // Accept both password and newPassword from Flutter/Postman
+  const password = req.body.password || req.body.newPassword;
+
+  // Required field validation
   if (!phone || !password) {
-    return res.status(400).json({ success: false, error: 'Phone and new password are required' });
+    return res.status(400).json({
+      success: false,
+      error: 'Phone and new password are required'
+    });
   }
 
-  const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+  // Convert phone to string and clean it
+  const cleanPhone = String(phone).replace(/\D/g, '').slice(-10);
+
+  if (cleanPhone.length !== 10) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid phone number'
+    });
+  }
 
   try {
+    // OTP validation (if provided)
     if (otp) {
       const [otpRows] = await db.query(
-        'SELECT * FROM otps WHERE (mobile_number LIKE ? OR mobile_number = ?) ORDER BY id DESC LIMIT 1',
+        `SELECT * FROM otps
+         WHERE mobile_number LIKE ?
+            OR mobile_number = ?
+         ORDER BY id DESC
+         LIMIT 1`,
         [`%${cleanPhone}`, phone]
       );
-      if (otpRows.length > 0 && otpRows[0].otp.toString().trim() !== otp.toString().trim()) {
-        return res.status(400).json({ success: false, error: 'Invalid OTP entered' });
+
+      if (
+        otpRows.length > 0 &&
+        otpRows[0].otp.toString().trim() !==
+        otp.toString().trim()
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid OTP entered'
+        });
       }
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update partner password
     const [result] = await db.query(
-      'UPDATE partners SET password = ? WHERE mobile LIKE ? OR mobile = ?',
+      `UPDATE partners
+       SET password = ?
+       WHERE mobile LIKE ? OR mobile = ?`,
       [hashedPassword, `%${cleanPhone}`, phone]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, error: 'Partner not found with this phone number' });
+      return res.status(404).json({
+        success: false,
+        error: 'Partner not found with this phone number'
+      });
     }
 
-    res.json({
+    return res.status(200).json({
       success: true,
       message: 'Password reset successfully'
     });
+
   } catch (error) {
     console.error('Error in forgot-password:', error);
-    res.status(500).json({ success: false, error: 'Failed to reset password: ' + error.message });
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to reset password: ' + error.message
+    });
   }
 };
 
